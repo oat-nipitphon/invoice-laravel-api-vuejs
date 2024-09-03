@@ -1,28 +1,46 @@
 <script setup>
 
 import { onMounted, ref } from "vue"
+import axios from "axios"
 
 let invoices = ref([])
-let searchInvoice = ref([])
+let searchInvoice = ref("")
+let timeout = ref(null)
 
 onMounted(async () => {
     getInvoices()
 })
 
 const getInvoices = async () => {
-    let response = await axios.get("/api/get_all_invoice")
-    console.log('response', response)
-    invoices.value = response.data.invoices
+    try {
+        let response = await axios.get("/api/get_all_invoice")
+        console.log('response', response)
+        invoices.value = response.data.invoices
+    } catch (error) {
+        console.error('Error fetching invoices:', error);
+    }
 }
 
 const search = async () => {
-    let response = await axios.get("/api/search_invoice?id="+searchInvoice.value);
-    console.log('response', response.data.invoices);
-    invoices.value = response.data.invoices
+    if (searchInvoice.value.trim() !== "") {
+        try {
+            let response = await axios.get("/api/search_invoice?id=" + searchInvoice.value);
+            console.log('response', response.data.invoices);
+            invoices.value = response.data.invoices
+        } catch (error) {
+            console.error('Error fetching search invoices', error);
+        }
+    }else{
+        getInvoices();
+    }
 }
 
-
-
+const debouncedSearch = () => {
+    if(timeout.value);
+    timeout.value = setTimeout(() => {
+        search();
+    }, 300);
+}
 
 </script>
 <template>
@@ -70,7 +88,7 @@ const search = async () => {
                     <div class="relative">
                         <i class="table--search--input--icon fas fa-search "></i>
                         <input class="table--search--input" type="text" placeholder="Search invoice"
-                            v-model="searchInvoice" @keyup="search()">
+                            v-model="searchInvoice" @keyup="debouncedSearch()">
                     </div>
                 </div>
 
@@ -85,19 +103,19 @@ const search = async () => {
 
                 <!-- item 1 -->
                 <!-- <div v-if="invoices.length > 0"> -->
-                    <div class="table--items" v-for="item in invoices" :key="item.id">
-                        <a href="#" class="table--items--transactionId">#{{ item.id }}</a>
-                        <p>{{ item.date }}</p>
-                        <p>{{ item.number }}</p>
-                        <p v-if="item.customer">
-                            {{ item.customer.firstname }}
-                        </p>
-                        <p v-else class="text-center">
-                            <b>-</b>
-                        </p>
-                        <p>{{ item.due_date }}</p>
-                        <p> $ {{ item.total }}</p>
-                    </div>
+                <div class="table--items" v-for="item in invoices" :key="item.id">
+                    <a href="#" class="table--items--transactionId">#{{ item.id }}</a>
+                    <p>{{ item.date }}</p>
+                    <p>{{ item.number }}</p>
+                    <p v-if="item.customer">
+                        {{ item.customer.firstname }}
+                    </p>
+                    <p v-else class="text-center">
+                        <b>-</b>
+                    </p>
+                    <p>{{ item.due_date }}</p>
+                    <p> $ {{ item.total }}</p>
+                </div>
                 <!-- </div> -->
                 <!-- <div v-else>
                     <p>Invoice not found</p>
