@@ -1,15 +1,18 @@
 <script setup>
 
-import { onMounted, ref } from "vue"
-import axios from "axios"
+import { onMounted, ref } from 'vue'
+import axios from 'axios'
 
 let invoices = ref([])
 let searchInvoice = ref("")
 let timeout = ref(null)
 
+// const router = useRouter()
+
 onMounted(async () => {
     getInvoices()
 })
+
 
 const getInvoices = async () => {
     try {
@@ -30,13 +33,13 @@ const search = async () => {
         } catch (error) {
             console.error('Error fetching search invoices', error);
         }
-    }else{
+    } else {
         getInvoices();
     }
 }
 
 const debouncedSearch = () => {
-    if(timeout.value);
+    if (timeout.value);
     timeout.value = setTimeout(() => {
         search();
     }, 300);
@@ -53,7 +56,8 @@ const debouncedSearch = () => {
                 </div>
                 <div>
                     <a class="btn btn-secondary">
-                        New Invoice
+                        <!-- New Invoice -->
+                        <router-link to="/invoice/new">New Invoice</router-link>
                     </a>
                 </div>
             </div>
