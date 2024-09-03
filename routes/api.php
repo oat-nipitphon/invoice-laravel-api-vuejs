@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProductController;
 
 
 /*
@@ -26,3 +27,6 @@ Route::get('/search_invoice', [InvoiceController::class, 'searchInvoice']);
 Route::get('/create_invoice', [InvoiceController::class, 'createInvoice']);
 
 Route::get('/get_all_customer', [CustomerController::class, 'getAllCustomer']);
+
+Route::get('/getProduct', [ProductController::class, 'getProduct']);
+
