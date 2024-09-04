@@ -18,6 +18,15 @@ class InvoiceController extends Controller
         ],200);
     }
 
+    public function showGetInvoiceData ($id) {
+
+        $invoice = Invoice::with('customer')->find($id);
+        return response()->json([
+            'invoice' => $invoice
+        ],200);
+
+    }
+
     public function searchInvoice (Request $request) {
 
         $search = $request->get('id');

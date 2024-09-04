@@ -1,49 +1,51 @@
 <script setup>
 
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
+    import { onMounted, ref } from 'vue'
+    import router from '../../router/index.js';
 
-let invoices = ref([])
-let searchInvoice = ref("")
-let timeout = ref(null)
+    let invoices = ref([])
+    let searchInvoice = ref("")
+    let timeout = ref(null)
 
-// const router = useRouter()
-
-onMounted(async () => {
-    getInvoices()
-})
+    onMounted(async () => {
+        getInvoices()
+    })
 
 
-const getInvoices = async () => {
-    try {
-        let response = await axios.get("/api/get_all_invoice")
-        console.log('response', response)
-        invoices.value = response.data.invoices
-    } catch (error) {
-        console.error('Error fetching invoices:', error);
-    }
-}
-
-const search = async () => {
-    if (searchInvoice.value.trim() !== "") {
+    const getInvoices = async () => {
         try {
-            let response = await axios.get("/api/search_invoice?id=" + searchInvoice.value);
-            console.log('response', response.data.invoices);
+            let response = await axios.get("/api/get_all_invoice")
+            console.log('response', response)
             invoices.value = response.data.invoices
         } catch (error) {
-            console.error('Error fetching search invoices', error);
+            console.error('Error fetching invoices:', error);
         }
-    } else {
-        getInvoices();
     }
-}
 
-const debouncedSearch = () => {
-    if (timeout.value);
-    timeout.value = setTimeout(() => {
-        search();
-    }, 300);
-}
+    const search = async () => {
+        if (searchInvoice.value.trim() !== "") {
+            try {
+                let response = await axios.get("/api/search_invoice?id=" + searchInvoice.value);
+                console.log('response', response.data.invoices);
+                invoices.value = response.data.invoices
+            } catch (error) {
+                console.error('Error fetching search invoices', error);
+            }
+        } else {
+            getInvoices();
+        }
+    }
+
+    const debouncedSearch = () => {
+        if (timeout.value);
+        timeout.value = setTimeout(() => {
+            search();
+        }, 300);
+    }
+
+    const onShow = (id) => {
+        router.push('/invoice/show/'+id);
+    }
 
 </script>
 <template>
@@ -108,7 +110,8 @@ const debouncedSearch = () => {
                 <!-- item 1 -->
                 <!-- <div v-if="invoices.length > 0"> -->
                 <div class="table--items" v-for="item in invoices" :key="item.id">
-                    <a href="#" class="table--items--transactionId">#{{ item.id }}</a>
+                    <!-- <a href="#" class="table--items--transactionId">#{{ item.id }}</a> -->
+                    <a href="#" @click="onShow(item.id)">#{{ item.id }}</a>
                     <p>{{ item.date }}</p>
                     <p>{{ item.number }}</p>
                     <p v-if="item.customer">
