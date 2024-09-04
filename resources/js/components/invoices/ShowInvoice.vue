@@ -1,10 +1,8 @@
 <script setup>
 
     import { onMounted, ref } from 'vue'
-    // import Logo from '/resources/js/assets/img/logo.png'
-
-
     import logoImage from '@/../assets/img/logo.png';
+    // import BackgroundHeader from '@/../assets/img/background-header.jpg';
 
 
 
@@ -38,33 +36,33 @@
         <!--==================== SHOW INVOICE ====================-->
         <div class="invoices">
 
-            <div class="card__header">
-                <div>
+            <div class="card__header" style="height: 80px;">
+                <div style="margin-top: 50px;margin-left:30px;">
                     <h2 class="invoice__title">Invoice</h2>
+                    <div class="card__header--title ">
+                        <h1 class="mr-2">#{{ form.id }}</h1>
+                        <p>{{ form.created_at }}</p>
+                    </div>
                 </div>
-                <div>
-
-                </div>
-            </div>
-            <div>
-                <div class="card__header--title ">
-                    <h1 class="mr-2">#{{ form.id }}</h1>
-                    <p>{{ form.created_at }}</p>
-                </div>
-
-                <div>
+                <div style="margin-right: 30px; margin-top:30px;">
                     <ul class="card__header-list">
                         <li>
                             <!-- Select Btn Option -->
-                            <button class="selectBtnFlat">
+                            <button class="button selectBtnFlat">
                                 <i class="fas fa-print"></i>
                                 Print
                             </button>
                             <!-- End Select Btn Option -->
                         </li>
                         <li>
+                            <button class="button selectBtnFlat btn btn-secondary">
+                                <i class=" fas fa-save"></i>
+                                Save
+                            </button>
+                        </li>
+                        <li>
                             <!-- Select Btn Option -->
-                            <button class="selectBtnFlat">
+                            <button class="button selectBtnFlat">
                                 <i class=" fas fa-reply"></i>
                                 Edit
                             </button>
@@ -72,21 +70,20 @@
                         </li>
                         <li>
                             <!-- Select Btn Option -->
-                            <button class="selectBtnFlat ">
+                            <button class="button selectBtnFlat ">
                                 <i class=" fas fa-pencil-alt"></i>
                                 Delete
                             </button>
                             <!-- End Select Btn Option -->
                         </li>
-
                     </ul>
                 </div>
             </div>
 
             <div class="table invoice" >
-               <div class="logo">
-                    <!--  <img :src="logoImage" alt="Logo" style="width: 200px;">-->
-                </div>
+               <!-- <div class="logo">
+
+                </div> -->
                 <div class="invoice__header--title">
                     <p></p>
                     <p class="invoice__header--title-1">
@@ -94,34 +91,41 @@
                     </p>
                     <p></p>
                 </div>
-
-
                 <div class="invoice__header--item">
                     <div>
-                        <h2>Invoice To:</h2>
-                        <p v-if="form.customer">{{ form.customer.firstname }}</p>
+                        <h1><b style="font-size:24px;">Invoice Detail</b></h1>
+                        <p style="margin-top:10px;"
+                         v-if="form.customer">
+                         <b>Name :: </b>{{ form.customer.firstname }}
+                        </p>
+                        <p style="margin-top:10px;"
+                         v-if="form.customer">
+                         <b>Email :: </b>{{ form.customer.email }}
+                        </p>
+                        <p style="margin-top:10px;"
+                         v-if="form.customer">
+                         <b>Address :: </b>{{ form.customer.address }}
+                        </p>
                     </div>
                     <div>
-                        <div class="invoice__header--item1">
-                            <p>Invoice</p>
+                        <div style="font-size:18px;" class="invoice__header--item1">
+                            <p style="">Invoice</p>
                             <span>{{ form.number }}</span>
                         </div>
-                        <div class="invoice__header--item2">
-                            <p>Date</p>
+                        <div style="font-size:18px;" class="invoice__header--item2">
+                            <p style="">Date</p>
                             <span>{{ form.date }}</span>
                         </div>
-                        <div class="invoice__header--item2">
-                            <p>Due Date</p>
+                        <div style="font-size:18px;" class="invoice__header--item2">
+                            <p style="">Due Date</p>
                             <span>{{ form.due_date }}</span>
                         </div>
-                        <div class="invoice__header--item2">
-                            <p>Reference</p>
+                        <div style="font-size:18px;" class="invoice__header--item2">
+                            <p style="">Reference</p>
                             <span>{{ form.reference }}</span>
                         </div>
-
                     </div>
                 </div>
-
                 <!-- listCart items -->
                 <div class="table py1">
 
@@ -195,7 +199,6 @@
                     </div>
 
                 </div>
-
                 <div class="invoice__subtotal">
                     <div>
                         <h2>Thank you for your business</h2>
@@ -209,10 +212,8 @@
                             <p>Discount</p>
                             <span>{{ form.discount }}</span>
                         </div>
-
                     </div>
                 </div>
-
                 <div class="invoice__total">
                     <div>
                         <h2>Terms and Conditions</h2>
@@ -227,19 +228,23 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-            <div class="card__footer">
-                <div>
-
-                </div>
-                <div>
-                    <a class="btn btn-secondary">
-                        Save
-                    </a>
-                </div>
-            </div>
-
         </div>
     </div>
 </template>
+<style>
+    .button {
+        display: inline-block;
+        border-radius: 4px;
+        background-color: #f4511e;
+        border: none;
+        color: #FFFFFF;
+        text-align: center;
+        font-size: 18px;
+        padding: 5px;
+        width: 100px;
+        transition: all 0.5s;
+        cursor: pointer;
+        margin: 5px;
+    }
+</style>
