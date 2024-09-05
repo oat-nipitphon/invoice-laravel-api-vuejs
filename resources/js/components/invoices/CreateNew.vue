@@ -80,15 +80,20 @@ const closeModal = () => {
 }
 
 const SubTotal = () => {
-    let total = 0
+    let total = 0;
     listCart.value.map((data) => {
-        total = total + (data.quantity * data.unit_price)
-    })
-    return total
+        total += data.quantity * data.unit_price;
+    });
+    return total;
+};
+
+const Discount = () => {
+    if (!form.value.discount) return 0; // Check if discount exists
+    return SubTotal() * form.value.discount / 100;
 }
 
 const Total = () => {
-    return SubTotal() - form.value.discount
+    return SubTotal() - Discount()
 }
 
 const onSave = () => {
@@ -211,7 +216,7 @@ const onSave = () => {
                             <span>$ {{ SubTotal() }}</span>
                         </div>
                         <div class="table__footer--discount">
-                            <p>Discount</p>
+                            <p>Discount % </p>
                             <!-- <p style="font-size: 14px; color:red;">(ราคาลด)</p> -->
                             <input type="text" class="input" v-model="form.discount">
                         </div>

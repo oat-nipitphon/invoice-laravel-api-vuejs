@@ -47,6 +47,10 @@
         router.push('/invoice/show/'+id);
     }
 
+    const onNewCreateInvoice = () => {
+        router.push('/invoice/new_create');
+    }
+
 </script>
 <template>
     <div class="container">
@@ -57,9 +61,13 @@
                     <h2 class="invoice__title">Invoices</h2>
                 </div>
                 <div>
-                    <a class="btn btn-secondary">
-                        <!-- New Invoice -->
-                        <router-link to="/invoice/new">New Invoice</router-link>
+                    <!-- <button @click="onNewCreateInvoice()" class="button" style="vertical-align:middle">
+                        <span>New Create </span>
+                    </button> -->
+                    <a class="btn btn-sm button" @click="onNewCreateInvoice()">
+                        <span>
+                            New Create
+                        </span>
                     </a>
                 </div>
             </div>
@@ -132,3 +140,48 @@
         </div>
     </div>
 </template>
+<style>
+    a.button {
+        width: 150px !important;
+        padding: 5px !important;
+    }
+    .button {
+        display: inline-block;
+        border-radius: 4px;
+        background-color: #f4511e;
+        border: none;
+        color: #FFFFFF;
+        text-align: center;
+        font-size: 14px;
+        padding: 20px;
+        width: 300px;
+        transition: all 0.5s;
+        cursor: pointer;
+        margin: 5px;
+    }
+
+    .button span {
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+        transition: 0.5s;
+    }
+
+    .button span:after {
+        content: '\00bb';
+        position: absolute;
+        opacity: 0;
+        top: 0;
+        right: -20px;
+        transition: 0.5s;
+    }
+
+    .button:hover span {
+        padding-right: 25px;
+    }
+
+    .button:hover span:after {
+        opacity: 1;
+        right: 0;
+    }
+  </style>

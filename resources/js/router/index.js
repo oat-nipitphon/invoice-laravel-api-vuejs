@@ -15,7 +15,7 @@ const routes = [
         component: invoiceIndex
     },
     {
-        path:'/invoice/new',
+        path:'/invoice/new_create',
         component: CreateNew
     },
     {
