@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\Customer;
 use App\Models\Counter;
-use App\Models\invoiceItem;
+use App\Models\InvoiceItem;
 
 class InvoiceController extends Controller
 {
@@ -20,7 +20,7 @@ class InvoiceController extends Controller
 
     public function showGetInvoiceData ($id) {
 
-        $invoice = Invoice::with('customer')->find($id);
+        $invoice = Invoice::with('customer','InvoiceItem.product')->find($id);
         return response()->json([
             'invoice' => $invoice
         ],200);
@@ -104,10 +104,48 @@ class InvoiceController extends Controller
 
         return response()->json([
             'status' => 200,
-            'megess' => 'Insert Invoice and Invoiceitem Successfully.'
-        ]);
+            'megess' => 'Insert Invoice and Invoiceitem Success.'
+        ],200);
 
     }
 
+    public function formEditInvoiceData($id){
+
+        $invoice = Invoice::with('customer','InvoiceItem.product')->find($id);
+        return response()->json([
+            'invoice' => $invoice
+        ],200);
+
+    }
+
+    public function updateInvoice(Request $request){
+
+
+
+
+        return response()->json([
+            'status' => 200,
+            'megess' => 'Update Invoice and Invoiceitem Success.'
+        ],200);
+    }
+
+    public function deleteInvoice($id){
+
+        $invoice = Invoice::find($id);
+
+        if ($invoice) {
+            // ลบรายการที่เกี่ยวข้องในตาราง InvoiceItem ก่อน
+            InvoiceItem::where('invoice_id', $id)->delete();
+
+            // ลบใบแจ้งหนี้ (Invoice)
+            $invoice->delete();
+
+            return response()->json([
+                'message' => 'Invoice and related items deleted successfully'
+            ], 200);
+        } else {
+            return response()->json(['message' => 'Invoice not found'], 404);
+        }
+    }
 
 }

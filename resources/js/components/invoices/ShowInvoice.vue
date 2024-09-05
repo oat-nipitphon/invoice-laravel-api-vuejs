@@ -1,20 +1,19 @@
 <script setup>
 
     import { onMounted, ref } from 'vue'
-    import logoImage from '@/../assets/img/logo.png';
-    // import BackgroundHeader from '@/../assets/img/background-header.jpg';
-
+    import logoImage from '@/../assets/img/logo.png'
+    import router from '../../router/index.js'
 
 
     let form = ref({
-        id:''
+        id: ''
 
     })
 
     const props = defineProps({
-        id:{
-            type:String,
-            default:''
+        id: {
+            type: String,
+            default: ''
         }
     })
 
@@ -28,9 +27,19 @@
         form.value = response.data.invoice
     }
 
+    const onDelete = async (id) => {
+        await axios.delete(`/api/delete_invoice/${id}`);
+        router.push('/');
+    }
+
+    const onFormEditInvoice = (id_invoice) => {
+        router.push('/invoice/formedit/' + id_invoice);
+    }
+
+
+
 
 </script>
-
 <template>
     <div class="contriner">
         <!--==================== SHOW INVOICE ====================-->
@@ -38,22 +47,15 @@
 
             <div class="card__header" style="height: 80px;">
                 <div style="margin-top: 50px;margin-left:30px;">
-                    <h2 class="invoice__title">Invoice</h2>
-                    <div class="card__header--title ">
-                        <h1 class="mr-2">#{{ form.id }}</h1>
+                    <label style="font-size: 34px;">Invoice </label>
+                    <label style="font-size: 20px;">#{{ form.id }}</label>
+                    <div class="card__header--title " style="margin-top:15px;">
+                        <h1 class="mr-2">Date create</h1>
                         <p>{{ form.created_at }}</p>
                     </div>
                 </div>
-                <div style="margin-right: 30px; margin-top:30px;">
+                <div style="margin-right: 30px; margin-top:10px;">
                     <ul class="card__header-list">
-                        <li>
-                            <!-- Select Btn Option -->
-                            <button class="button selectBtnFlat">
-                                <i class="fas fa-print"></i>
-                                Print
-                            </button>
-                            <!-- End Select Btn Option -->
-                        </li>
                         <li>
                             <button class="button selectBtnFlat btn btn-secondary">
                                 <i class=" fas fa-save"></i>
@@ -62,7 +64,7 @@
                         </li>
                         <li>
                             <!-- Select Btn Option -->
-                            <button class="button selectBtnFlat">
+                            <button class="button selectBtnFlat" @click="onFormEditInvoice(form.id)">
                                 <i class=" fas fa-reply"></i>
                                 Edit
                             </button>
@@ -70,9 +72,17 @@
                         </li>
                         <li>
                             <!-- Select Btn Option -->
-                            <button class="button selectBtnFlat ">
+                            <button class="button selectBtnFlat " @click="onDelete(form.id)">
                                 <i class=" fas fa-pencil-alt"></i>
                                 Delete
+                            </button>
+                            <!-- End Select Btn Option -->
+                        </li>
+                        <li>
+                            <!-- Select Btn Option -->
+                            <button class="button selectBtnFlat">
+                                <i class="fas fa-print"></i>
+                                Print
                             </button>
                             <!-- End Select Btn Option -->
                         </li>
@@ -80,8 +90,8 @@
                 </div>
             </div>
 
-            <div class="table invoice" >
-               <!-- <div class="logo">
+            <div class="table invoice">
+                <!-- <div class="logo">
 
                 </div> -->
                 <div class="invoice__header--title">
@@ -94,17 +104,14 @@
                 <div class="invoice__header--item">
                     <div>
                         <h1><b style="font-size:24px;">Invoice Detail</b></h1>
-                        <p style="margin-top:10px;"
-                         v-if="form.customer">
-                         <b>Name :: </b>{{ form.customer.firstname }}
+                        <p style="margin-top:10px;" v-if="form.customer">
+                            <b>Name :: </b>{{ form.customer.firstname }}
                         </p>
-                        <p style="margin-top:10px;"
-                         v-if="form.customer">
-                         <b>Email :: </b>{{ form.customer.email }}
+                        <p style="margin-top:10px;" v-if="form.customer">
+                            <b>Email :: </b>{{ form.customer.email }}
                         </p>
-                        <p style="margin-top:10px;"
-                         v-if="form.customer">
-                         <b>Address :: </b>{{ form.customer.address }}
+                        <p style="margin-top:10px;" v-if="form.customer">
+                            <b>Address :: </b>{{ form.customer.address }}
                         </p>
                     </div>
                     <div>
@@ -233,18 +240,18 @@
     </div>
 </template>
 <style>
-    .button {
-        display: inline-block;
-        border-radius: 4px;
-        background-color: #f4511e;
-        border: none;
-        color: #FFFFFF;
-        text-align: center;
-        font-size: 18px;
-        padding: 5px;
-        width: 100px;
-        transition: all 0.5s;
-        cursor: pointer;
-        margin: 5px;
-    }
+.button {
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #f4511e;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 16px;
+    padding: 3px;
+    width: 70px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+}
 </style>
