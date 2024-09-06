@@ -1,101 +1,97 @@
 <script setup>
 
-    import { onMounted, ref } from 'vue'
-    import logoImage from '@/../assets/img/logo.png'
-    import router from '../../router/index.js'
+import { onMounted, ref } from 'vue'
+import logoImage from '@/../assets/img/logo.png'
+import router from '../../router/index.js'
 
 
-    let form = ref({
-        id: ''
+let form = ref({
+    id: ''
 
-    })
+})
 
-    const props = defineProps({
-        id: {
-            type: String,
-            default: ''
-        }
-    })
-
-    onMounted(async () => {
-        showGetInvoiceData()
-    })
-
-    const showGetInvoiceData = async () => {
-        let response = await axios.get(`/api/show_get_invoice_data/${props.id}`);
-        console.log('Get Invoice Data :: ', response.data.invoice);
-        form.value = response.data.invoice
+const props = defineProps({
+    id: {
+        type: String,
+        default: ''
     }
+})
 
-    const onDelete = async (id) => {
-        await axios.delete(`/api/delete_invoice/${id}`);
-        router.push('/');
-    }
+onMounted(async () => {
+    showGetInvoiceData()
+})
 
-    const onFormEditInvoice = (id_invoice) => {
-        router.push('/invoice/formedit/' + id_invoice);
-    }
+const showGetInvoiceData = async () => {
+    let response = await axios.get(`/api/show_get_invoice_data/${props.id}`);
+    console.log('Get Invoice Data :: ', response.data.invoice);
+    form.value = response.data.invoice
+}
 
+const onDelete = async (id) => {
+    await axios.delete(`/api/delete_invoice/${id}`);
+    router.push('/');
+}
 
+const onFormEditInvoice = (id) => {
+    router.push(`/invoice/formedit/${id}`);
+}
 
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+
+const onBack = () => {
+    router.push('/');
+}
 
 </script>
 <template>
-    <div class="contriner">
+    <div class="container">
         <!--==================== SHOW INVOICE ====================-->
         <div class="invoices">
-
-            <div class="card__header" style="height: 80px;">
-                <div style="margin-top: 50px;margin-left:30px;">
-                    <label style="font-size: 34px;">Invoice </label>
-                    <label style="font-size: 20px;">#{{ form.id }}</label>
-                    <div class="card__header--title " style="margin-top:15px;">
-                        <h1 class="mr-2">Date create</h1>
-                        <p>{{ form.created_at }}</p>
-                    </div>
+            <div class="card__header">
+                <div class="col-md-6">
+                    <h2 class="invoice__title">
+                        <p style="font-size: 24px;">Invoice #{{ form.id }}</p>
+                        <p style="font-size: 16px; ">{{ form.created_at }}</p>
+                    </h2>
                 </div>
-                <div style="margin-right: 30px; margin-top:10px;">
-                    <ul class="card__header-list">
+                <div class="col-md-6">
+                    <ul class="card__header-list" style="margin-top:15px;">
                         <li>
-                            <button class="button selectBtnFlat btn btn-secondary">
+                            <button class="button selectBtnFlat btn btn-secondary" @click="onFormEditInvoice(form.id)">
                                 <i class=" fas fa-save"></i>
-                                Save
-                            </button>
-                        </li>
-                        <li>
-                            <!-- Select Btn Option -->
-                            <button class="button selectBtnFlat" @click="onFormEditInvoice(form.id)">
-                                <i class=" fas fa-reply"></i>
                                 Edit
                             </button>
-                            <!-- End Select Btn Option -->
                         </li>
                         <li>
-                            <!-- Select Btn Option -->
+                            <button class="button selectBtnFlat" @click="onPrint()">
+                                <i class="fas fa-print"></i>
+                                Print
+                            </button>
+                        </li>
+                        <li>
                             <button class="button selectBtnFlat " @click="onDelete(form.id)">
                                 <i class=" fas fa-pencil-alt"></i>
                                 Delete
                             </button>
-                            <!-- End Select Btn Option -->
                         </li>
                         <li>
-                            <!-- Select Btn Option -->
-                            <button class="button selectBtnFlat">
-                                <i class="fas fa-print"></i>
-                                Print
+                            <button class="button selectBtnFlat " @click="onBack()">
+                                <i class=" fas fa-pencil-alt"></i>
+                                Back
                             </button>
-                            <!-- End Select Btn Option -->
                         </li>
                     </ul>
                 </div>
             </div>
-
             <div class="table invoice">
-                <!-- <div class="logo">
-
-                </div> -->
+                <!-- <div class="logo">..</div> -->
                 <div class="invoice__header--title">
-                    <p></p>
+                    <p style="margin-top:15px;margin-left:15px;">
+                        <b style="font-size: 24px;">Show Detail</b>
+                    </p>
                     <p class="invoice__header--title-1">
                         <img :src="logoImage" alt="Logo" style="width: 200px;">
                     </p>
@@ -103,7 +99,6 @@
                 </div>
                 <div class="invoice__header--item">
                     <div>
-                        <h1><b style="font-size:24px;">Invoice Detail</b></h1>
                         <p style="margin-top:10px;" v-if="form.customer">
                             <b>Name :: </b>{{ form.customer.firstname }}
                         </p>
@@ -115,28 +110,25 @@
                         </p>
                     </div>
                     <div>
-                        <div style="font-size:18px;" class="invoice__header--item1">
-                            <p style="">Invoice</p>
-                            <span>{{ form.number }}</span>
+                        <div class="invoice__header--item1">
+                            <p style="font-size: 16px; font-weight: bold;" class="font-title">Invoice</p>
+                            <span style="font-size: 16px;;" class="font-content">{{ form.number }}</span>
                         </div>
-                        <div style="font-size:18px;" class="invoice__header--item2">
-                            <p style="">Date</p>
-                            <span>{{ form.date }}</span>
+                        <div class="invoice__header--item2">
+                            <p style="font-size: 16px; font-weight: bold;" class="font-title">Date</p>
+                            <span style="font-size: 16px;;" class="font-content">{{ form.date }}</span>
                         </div>
-                        <div style="font-size:18px;" class="invoice__header--item2">
-                            <p style="">Due Date</p>
-                            <span>{{ form.due_date }}</span>
+                        <div class="invoice__header--item2">
+                            <p style="font-size: 16px; font-weight: bold;" class="font-title">Due Date</p>
+                            <span style="font-size: 16px;;" class="font-content">{{ form.due_date }}</span>
                         </div>
-                        <div style="font-size:18px;" class="invoice__header--item2">
-                            <p style="">Reference</p>
-                            <span>{{ form.reference }}</span>
+                        <div class="invoice__header--item2">
+                            <p style="font-size: 16px; font-weight: bold;" class="font-title">Reference</p>
+                            <span style="font-size: 16px;;" class="font-content">{{ form.reference }}</span>
                         </div>
                     </div>
                 </div>
-                <!-- listCart items -->
                 <div class="table py1">
-
-                    <!-- item 1 itemCart-->
                     <div class="table--heading3">
                         <p>#</p>
                         <p>Item Description</p>
@@ -144,67 +136,13 @@
                         <p>Qty</p>
                         <p>Total</p>
                     </div>
-
-                    <!-- item 2 itemCart-->
-                    <div class="table--items3">
-                        <p>1</p>
-                        <p>Lorem Ipsum is simply dummy text</p>
-                        <p>$ 300</p>
-                        <p>1</p>
-                        <p>$ 300</p>
+                    <div class="table--items3" v-for="(item, i) in form.invoice_item" :key="item.id">
+                        <p>{{ i + 1 }}</p>
+                        <p>{{ item.product.description }}</p>
+                        <p>$ {{ item.unit_price }}</p>
+                        <p>{{ item.quantity }}</p>
+                        <p>$ {{ item.unit_price * item.quantity }}</p>
                     </div>
-                    <div class="table--items3">
-                        <p class="table--items--col2">
-                            2
-                        </p>
-                        <p class="table--items--col1 table--items--transactionId3">
-                            Lorem Ipsum is simply dummy text
-                        </p>
-                        <p class="table--items--col2">
-                            $ 300
-                        </p>
-                        <p class="table--items--col3">
-                            1
-                        </p>
-                        <p class="table--items--col5">
-                            $ 300
-                        </p>
-                    </div>
-                    <div class="table--items3">
-                        <p class="table--items--col2">
-                            3
-                        </p>
-                        <p class="table--items--col1 table--items--transactionId3">
-                            Lorem Ipsum is simply dummy text
-                        </p>
-                        <p class="table--items--col2">
-                            $ 300
-                        </p>
-                        <p class="table--items--col3">
-                            1
-                        </p>
-                        <p class="table--items--col5">
-                            $ 300
-                        </p>
-                    </div>
-                    <div class="table--items3">
-                        <p class="table--items--col2">
-                            4
-                        </p>
-                        <p class="table--items--col1 table--items--transactionId3">
-                            Lorem Ipsum is simply dummy text
-                        </p>
-                        <p class="table--items--col2">
-                            $ 300
-                        </p>
-                        <p class="table--items--col3">
-                            1
-                        </p>
-                        <p class="table--items--col5">
-                            $ 300
-                        </p>
-                    </div>
-
                 </div>
                 <div class="invoice__subtotal">
                     <div>
@@ -239,7 +177,16 @@
         </div>
     </div>
 </template>
+<!-- Start Css Custom -->
 <style>
+.font-title {
+    size: 16px;
+}
+
+.font-content {
+    size: 16px;
+}
+
 .button {
     display: inline-block;
     border-radius: 4px;
@@ -255,3 +202,4 @@
     margin: 5px;
 }
 </style>
+<!-- End Css Custom -->

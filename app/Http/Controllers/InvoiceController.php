@@ -18,15 +18,6 @@ class InvoiceController extends Controller
         ],200);
     }
 
-    public function showGetInvoiceData ($id) {
-
-        $invoice = Invoice::with('customer','InvoiceItem.product')->find($id);
-        return response()->json([
-            'invoice' => $invoice
-        ],200);
-
-    }
-
     public function searchInvoice (Request $request) {
 
         $search = $request->get('id');
@@ -41,6 +32,17 @@ class InvoiceController extends Controller
             return $this->getAllInvoice();
         }
     }
+
+    public function showGetInvoiceData ($id) {
+
+        $invoice = Invoice::with('customer','InvoiceItem.product')->find($id);
+        // return $invoice;
+        return response()->json([
+            'invoice' => $invoice
+        ],200);
+
+    }
+
 
     public function createInvoice (Request $request) {
 
@@ -109,19 +111,9 @@ class InvoiceController extends Controller
 
     }
 
-    public function formEditInvoiceData($id){
-
-        $invoice = Invoice::with('customer','InvoiceItem.product')->find($id);
-        return response()->json([
-            'invoice' => $invoice
-        ],200);
-
-    }
-
     public function updateInvoice(Request $request){
 
-
-
+        return $request;
 
         return response()->json([
             'status' => 200,

@@ -1,12 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router';
-// import axios from 'axios'
+import logoImage from '@/../assets/img/logo.png'
+import router from '../../router/index.js'
 
 const showModal = ref(false)
 const hideModal = ref(true)
-
-const router = useRouter()
 
 let form = ref([])
 let customers = ref([])
@@ -124,6 +122,19 @@ const onSave = () => {
     }
 }
 
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+
+const onBack = () => {
+    router.push('/');
+}
+
+const onReset = () => {
+    location.reload()
+}
+
 
 </script>
 <template>
@@ -134,16 +145,36 @@ const onSave = () => {
             <div class="card__header">
                 <div class="col-md-6">
                     <h2 class="invoice__title">
-                        Insert Data Invoice New
+                        <p style="font-size: 24px;">Invoice #{{ form.id }}</p>
+                        <p style="font-size: 16px; ">{{ form.created_at }}</p>
                     </h2>
                 </div>
                 <div class="col-md-6">
-                    <h2 class="invoice__title">
-                        <router-link to="/">Back Index</router-link>
-                    </h2>
+                    <ul class="card__header-list" style="margin-top:15px;">
+                        <li>
+                            <button class="button selectBtnFlat" @click="onPrint()">
+                                <i class="fas fa-print"></i>
+                                Print
+                            </button>
+                        </li>
+                        <li>
+                            <button class="button selectBtnFlat " @click="onBack()">
+                                <i class=" fas fa-pencil-alt"></i>
+                                Back
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
-
+            <div class="invoice__header--title">
+                <p style="margin-top:15px;margin-left:15px;">
+                    <b style="font-size: 24px;">Create New</b>
+                </p>
+                <p class="invoice__header--title-1">
+                    <img :src="logoImage" alt="Logo" style="width: 200px;">
+                </p>
+                <p></p>
+            </div>
             <div class="card__content">
                 <div class="card__content--header">
                     <div>
@@ -168,9 +199,7 @@ const onSave = () => {
                         <input type="text" class="input" v-model="form.reference">
                     </div>
                 </div>
-                <br><br>
                 <div class="table">
-
                     <div class="table--heading2">
                         <p>Item Description</p>
                         <p>Unit Price</p>
@@ -178,8 +207,6 @@ const onSave = () => {
                         <p>Total</p>
                         <p></p>
                     </div>
-
-                    <!--- Start Cart items List Add Product For Loop Insert and Update DataBase SQL --->
                     <div class="table--items2" v-for="(itemcart) in listCart" :key="itemcart.id">
                         <p> # {{ itemcart.item_code }} {{ itemcart.description }}</p>
                         <p>
@@ -201,10 +228,7 @@ const onSave = () => {
                             Add New Line
                         </button>
                     </div>
-                    <!--- Stop Cart items List Add Product For Loop Insert and Update DataBase SQL --->
-
                 </div>
-
                 <div class="table__footer">
                     <div class="document-footer">
                         <p>Terms and Conditions</p>
@@ -216,8 +240,7 @@ const onSave = () => {
                             <span>$ {{ SubTotal() }}</span>
                         </div>
                         <div class="table__footer--discount">
-                            <p>Discount % </p>
-                            <!-- <p style="font-size: 14px; color:red;">(ราคาลด)</p> -->
+                            <p>Discount</p>
                             <input type="text" class="input" v-model="form.discount">
                         </div>
                         <div class="table__footer--total">
@@ -226,21 +249,22 @@ const onSave = () => {
                         </div>
                     </div>
                 </div>
-
-
             </div>
             <div class="card__header" style="margin-top: 40px;">
                 <div>
-
+                    <button class="button-save" @click="onSave()">
+                        Save
+                    </button>
                 </div>
                 <div>
-                    <a class="btn btn-secondary" @click="onSave()">
-                        Save
-                    </a>
+                    <button class="button-back" @click="onReset()">
+                        Reset
+                    </button>
                 </div>
             </div>
         </div>
-        <!--==================== add modal items ====================-->
+
+        <!-- =============  Start Modal Items Products ============= -->
         <div class="modal main__modal " :class="{ show: showModal }">
             <div class="modal__content">
                 <span class="modal__close btn__close--modal" @click="closeModal()">×</span>
@@ -269,6 +293,15 @@ const onSave = () => {
                 </div>
             </div>
         </div>
-    </div>
+        <!-- =============  Stop Modal Items Products ============= -->
 
+    </div>
 </template>
+
+<style>
+.font-footer-data {
+    margin-left: 30px;
+    font-size: 16px;
+    font-weight: bold;
+}
+</style>

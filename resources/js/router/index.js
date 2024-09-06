@@ -24,7 +24,7 @@ const routes = [
         props: true
     },
     {
-        path:'/invoice/formedit/:id_invoice',
+        path:'/invoice/formedit/:id',
         component: FormEditInvoice,
         props: true
     }
