@@ -4,6 +4,17 @@ import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
 import router from '../../router/index.js'
 
+const showModal = ref(false)
+const hideModal = ref(true)
+
+const openModal = () => {
+    showModal.value = !showModal.value
+}
+
+const closeModal = () => {
+    showModal.value = !hideModal.value
+}
+
 
 let form = ref({
     id: ''
@@ -19,7 +30,18 @@ const props = defineProps({
 
 onMounted(async () => {
     showGetInvoiceData()
+    getProduct()
 })
+
+const getProduct = async () => {
+    try {
+        let responese = await axios.get('/api/getProduct');
+        console.log('Get Products :: ', responese);
+        listProducts.value = responese.data.products
+    } catch (error) {
+        console.error('Error Get Products :: ', error);
+    }
+}
 
 const showGetInvoiceData = async () => {
     let response = await axios.get(`/api/show_get_invoice_data/${props.id}`);
@@ -45,6 +67,10 @@ const onBack = () => {
     router.push('/');
 }
 
+const onReload = () => {
+    location.reload();
+}
+
 </script>
 <template>
     <div class="container">
@@ -60,15 +86,15 @@ const onBack = () => {
                 <div class="col-md-6">
                     <ul class="card__header-list" style="margin-top:15px;">
                         <li>
-                            <button class="button selectBtnFlat btn btn-secondary" @click="onFormEditInvoice(form.id)">
-                                <i class=" fas fa-save"></i>
-                                Edit
-                            </button>
-                        </li>
-                        <li>
                             <button class="button selectBtnFlat" @click="onPrint()">
                                 <i class="fas fa-print"></i>
                                 Print
+                            </button>
+                        </li>
+                        <li>
+                            <button class="button selectBtnFlat btn btn-secondary" @click="onFormEditInvoice(form.id)">
+                                <i class=" fas fa-save"></i>
+                                Edit
                             </button>
                         </li>
                         <li>
@@ -90,7 +116,11 @@ const onBack = () => {
                 <!-- <div class="logo">..</div> -->
                 <div class="invoice__header--title">
                     <p style="margin-top:15px;margin-left:15px;">
-                        <b style="font-size: 24px;">Show Detail</b>
+                        <b style="font-size: 16px;">
+                            <label style="font-size: 20px;" @click="onBack()">INDEX</label>
+                            <label style="font-size: 16px;"> / </label>
+                            <label style="font-size: 20px;" @click="onReload()">Show Detail</label>
+                        </b>
                     </p>
                     <p class="invoice__header--title-1">
                         <img :src="logoImage" alt="Logo" style="width: 200px;">

@@ -1,14 +1,18 @@
 <script setup>
-// import '@/../bootstrap/dist/';
 import { onMounted, ref } from 'vue'
-import router from '../../router/index.js';
 import logoImage from '@/../assets/img/logo.png'
+import router from '../../router/index.js';
 
-let form = ref({
-    id: ''
 
-})
 
+let form = ref([])
+let customers = ref([])
+let customer_id = ref([])
+let item = ref([])
+let listCart = ref([])
+let listProducts = ref([])
+const showModal = ref(false)
+const hideModal = ref(true)
 
 const props = defineProps({
     id: {
@@ -19,20 +23,13 @@ const props = defineProps({
 
 onMounted(async () => {
     getInvoiceFormEdit()
-    onUpdatedInvoice()
-
+    getProduct()
+    getCustomers()
+    removeitem()
+    SubTotal()
+    Total()
+    onUpdate()
 })
-
-const getInvoiceFormEdit = async () => {
-    let response = await axios.get(`/api/show_get_invoice_data/${props.id}`);
-    console.log('Get Data Form Edit Invoice :: ', response.data.invoice.date);
-    form.value = response.data.invoice
-
-}
-
-const onUpdatedInvoice = async () => {
-    console.log('Button Update Invoice');
-}
 
 const onPrint = () => {
     window.print()
@@ -41,6 +38,91 @@ const onPrint = () => {
 
 const onBack = () => {
     router.push('/');
+}
+
+const onReset = () => {
+    location.reload();
+}
+
+
+const getInvoiceFormEdit = async () => {
+    let response = await axios.get(`/api/show_get_invoice_data/${props.id}`);
+    console.log('Get Data Form Edit Invoice :: ', response.data.invoice.date);
+    form.value = response.data.invoice
+
+}
+
+const getCustomers = async () => {
+    try {
+        let response = await axios.get('/api/get_all_customer');
+        console.log('Customer respones', response);
+        customers.value = response.data.customers
+    } catch (error) {
+        console.error('Error getCustomers :', error);
+    }
+}
+
+
+const addCart = (item) => {
+    const itemcart = {
+        id: item.id,
+        item_code: item.item_code,
+        description: item.description,
+        unit_price: item.unit_price,
+        quantity: item.quantity,
+    }
+    listCart.value.push(itemcart)
+    closeModal()
+}
+
+const removeitem = (i) => {
+    listCart.value.splice(i, 1)
+}
+
+const getProduct = async () => {
+    try {
+        let responese = await axios.get('/api/getProduct');
+        console.log('Get Products :: ', responese);
+        listProducts.value = responese.data.products
+    } catch (error) {
+        console.error('Error Get Products :: ', error);
+    }
+}
+
+const openModal = () => {
+    showModal.value = !showModal.value
+}
+
+const closeModal = () => {
+    showModal.value = !hideModal.value
+}
+
+const SubTotal = () => {
+    let total = 0;
+    listCart.value.map((data) => {
+        total += data.quantity * data.unit_price;
+    });
+    return total;
+};
+
+const Discount = () => {
+    if (!form.value.discount) return 0; // Check if discount exists
+    return SubTotal() * form.value.discount / 100;
+}
+
+const Total = () => {
+    return SubTotal() - Discount()
+}
+
+const onDeleteItem = (id, i) => {
+    form.value.invoice_item.splice(i, 1)
+    if (id != undefined) {
+        axios.get(`/api/delete_invoice_item/${id}`);
+    }
+}
+
+const onUpdate = async (id) => {
+    console.log('Button Update Invoice' +id);
 }
 
 </script>
@@ -57,12 +139,6 @@ const onBack = () => {
                 </div>
                 <div class="col-md-6">
                     <ul class="card__header-list" style="margin-top:15px;">
-                        <li>
-                            <button class="button selectBtnFlat btn btn-secondary" @click="onUpdatedInvoice(form.id)">
-                                <i class=" fas fa-save"></i>
-                                Update
-                            </button>
-                        </li>
                         <li>
                             <button class="button selectBtnFlat" @click="onPrint()">
                                 <i class="fas fa-print"></i>
@@ -88,7 +164,11 @@ const onBack = () => {
                 <!-- <div class="logo">..</div> -->
                 <div class="invoice__header--title">
                     <p style="margin-top:15px;margin-left:15px;">
-                        <b style="font-size: 24px;">Form Edit</b>
+                        <b style="font-size: 16px;">
+                            <label style="font-size: 20px;" @click="onBack()">INDEX</label>
+                            <label style="font-size: 16px;"> / </label>
+                            <label style="font-size: 20px;" @click="onReload()">From Edit</label>
+                        </b>
                     </p>
                     <p class="invoice__header--title-1">
                         <img :src="logoImage" alt="Logo" style="width: 200px;">
@@ -97,22 +177,24 @@ const onBack = () => {
                 </div>
                 <div class="invoice__header--item">
                     <div>
-                        <label class="font-header-title">FirstName</label>
-                        <p class="font-header-data">
+                        <div class="font-header-title">FirstName</div>
+                        <div class="font-header-content">
                             <select name="" id="" class="input" v-model="form.customer_id">
                                 <option :value="form.customer_id">
                                     <p v-if="form.customer">{{ form.customer.firstname }}</p>
                                 </option>
                             </select>
-                        </p>
-                        <label class="font-header-title">Email</label>
-                        <p class="font-header-data" v-if="form.customer">
-                            {{ form.customer.email }}
-                        </p>
-                        <label class="font-header-title">Address</label>
-                        <p class="font-header-data" v-if="form.customer">
-                            {{ form.customer.address }}
-                        </p>
+                        </div>
+                        <div class="font-header-title">Email</div>
+                        <div class="font-header-content" v-if="form.customer">
+                            <input class="input" type="text" name="email" id="email" v-model="form.customer.email">
+                        </div>
+                        <div class="font-header-title">Address</div>
+                        <div class="font-header-content" v-if="form.customer">
+                            <textarea cols="50" rows="3" class="input" name="address" id="address"
+                                v-model="form.customer.address">
+                            </textarea>
+                        </div>
                     </div>
                     <div class="col-md-12">
                         <div class="row">
@@ -122,20 +204,32 @@ const onBack = () => {
                             </div>
                             <div class="col-md-6">
                                 <p class="font-header-title">Date</p>
-                                <span class="font-header-data">{{ form.date }}</span>
+                                <span class="font-header-data">
+                                    <input class="input" type="date" id="date" v-modal="form.date">
+                                </span>
                             </div>
                             <div class="col-md-6">
                                 <p class="font-header-title">Due Date</p>
-                                <span class="font-header-data">{{ form.due_date }}</span>
+                                <span class="font-header-data">
+                                    <input class="input" type="date" id="due_date" v-model="form.due_date"></span>
                             </div>
                             <div class="col-md-6">
                                 <p class="font-header-title">Reference</p>
-                                <span class="font-header-data">{{ form.reference }}</span>
+                                <span class="font-header-data">
+                                    <textarea cols="50" rows="3" class="input" type="text" id="reference"
+                                        v-model="form.reference">
+                                    </textarea>
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="table py1">
+                <div style="padding: 10px 30px !important;">
+                    <button class="btn btn-sm btn__open--modal" @click="openModal()">
+                        Add New Line
+                    </button>
+                </div>
+                <div class="table">
                     <div class="table--heading3">
                         <p>#</p>
                         <p>Item Description</p>
@@ -144,32 +238,38 @@ const onBack = () => {
                         <p>Total</p>
                     </div>
                     <div class="table--items3" v-for="(item, i) in form.invoice_item" :key="item.id">
-                        <p>{{ i + 1 }}</p>
-                        <p>{{ item.product.description }}</p>
-                        <p>$ {{ item.unit_price }}</p>
-                        <p>{{ item.quantity }}</p>
+                        <p style="color:red; font-size: 20px; font-weight: 900;" @click="onDeleteItem(item.id, i)"> -
+                        </p>
+                        <p> {{ i + 1 }} : {{ item.product.description }}</p>
+                        <p><input style="size: 2px;" type="text" class="input" id="unit_price" name="unit_price"
+                                v-model="item.unit_price"></p>
+                        <p><input style="size: 2px;" type="text" name="quantity" id="quantity" class="input"
+                                v-model="item.quantity"></p>
                         <p>$ {{ item.unit_price * item.quantity }}</p>
                     </div>
                 </div>
                 <div class="invoice__subtotal">
                     <div>
-                        <h2>Thank you for your business</h2>
+                        <h4>Thank you for your business</h4>
                     </div>
                     <div>
                         <div class="invoice__subtotal--item1">
-                            <p>Sub Total</p>
+                            <label>Sub Total</label>
                             <span>{{ form.sub_total }}</span>
                         </div>
                         <div class="invoice__subtotal--item2">
-                            <p>Discount</p>
-                            <span>{{ form.discount }}</span>
+                            <label>Discount</label>
+                            <span><input size="5" type="text" id="discount" name="discount" class="input"
+                                    v-model="form.discount"></span>
                         </div>
                     </div>
                 </div>
                 <div class="invoice__total">
                     <div>
                         <h2>Terms and Conditions</h2>
-                        <p>{{ form.terms_and_conditions }}</p>
+                        <p><textarea class="input" cols="50" rows="7" name="terms_and_conditions"
+                                id="terms_and_conditions" v-model="form.terms_and_conditions">
+                        </textarea></p>
                     </div>
                     <div>
                         <div class="grand__total">
@@ -180,8 +280,50 @@ const onBack = () => {
                         </div>
                     </div>
                 </div>
+                <div class="card__header" style="margin-top: 40px;">
+                    <div>
+                        <button class="button-save" @click="onUpdate(form.id)">
+                            Save
+                        </button>
+                    </div>
+                    <div>
+                        <button class="button-back" @click="onReset()">
+                            Reset
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
+        <!-- =============  Start Modal Items Products ============= -->
+        <div class="modal main__modal " :class="{ show: showModal }">
+            <div class="modal__content">
+                <span class="modal__close btn__close--modal" @click="closeModal()">×</span>
+                <h3 class="modal__title">Add Item</h3>
+                <hr><br>
+                <div class="modal__items">
+                    <ul style="list-style:none">
+                        <li v-for="(item, i) in listProducts" :key="item.id"
+                            style="display:grid;grid-template-columns: 30px 350px 15px; align-items: center; padding-bottom: 5px;">
+                            <p>{{ i + 1 }}</p>
+                            <a href="#">{{ item.item_code }} {{ item.description }}</a>
+                            <button @click="addCart(item)"
+                                style="border:1px solid; width: 35px; height: 35; cursor: pointer;">
+                                +
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <br>
+                <hr>
+                <div class="model__footer">
+                    <button class="btn btn-light mr-2 btn__close--modal" @click="closeModal()">
+                        Cancel
+                    </button>
+                    <button class="btn btn-light btn__close--modal ">Save</button>
+                </div>
+            </div>
+        </div>
+        <!-- =============  Stop Modal Items Products ============= -->
     </div>
 </template>
 <style>
