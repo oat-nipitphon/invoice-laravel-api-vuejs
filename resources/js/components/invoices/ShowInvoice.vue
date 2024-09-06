@@ -38,7 +38,7 @@ const onFormEditInvoice = (id) => {
 
 const onPrint = () => {
     window.print()
-    // router.push('/').catch(() => {})
+    router.push('/').catch(() => {})
 }
 
 const onBack = () => {
