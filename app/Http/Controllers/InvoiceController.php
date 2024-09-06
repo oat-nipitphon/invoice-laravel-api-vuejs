@@ -111,6 +111,11 @@ class InvoiceController extends Controller
 
     }
 
+    public function deleteInvoiceItem($id){
+        $invoice_item = InvoiceItem::findOrFail($id);
+        $invoice_item->delete();
+    }
+
     public function updateInvoice(Request $request){
 
         return $request;
