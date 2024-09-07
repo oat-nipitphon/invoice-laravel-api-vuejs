@@ -11,14 +11,14 @@ use App\Models\InvoiceItem;
 class InvoiceController extends Controller
 {
 
-    public function getAllInvoice () {
+    public function getInvoices () {
         $invoices = Invoice::with('customer')->orderBy('id', 'DESC')->get();
         return response()->json([
             'invoices' => $invoices
         ],200);
     }
 
-    public function searchInvoice (Request $request) {
+    public function searchInvoices (Request $request) {
 
         $search = $request->get('id');
         if($search != null){
@@ -29,11 +29,11 @@ class InvoiceController extends Controller
                 'invoices' => $invoices,
             ],200);
         }else{
-            return $this->getAllInvoice();
+            return $this->getInvoices();
         }
     }
 
-    public function showGetInvoiceData ($id) {
+    public function showGetInvoice ($id) {
 
         $invoice = Invoice::with('customer','InvoiceItem.product')->find($id);
         // return $invoice;

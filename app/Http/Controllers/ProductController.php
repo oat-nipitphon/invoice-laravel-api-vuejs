@@ -7,7 +7,7 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function getProduct() {
+    public function getProducts() {
 
         $products = Product::orderBy('id', 'DESC')->get();
 

@@ -4,23 +4,6 @@ import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
 import router from '../../router/index.js'
 
-const showModal = ref(false)
-const hideModal = ref(true)
-
-const openModal = () => {
-    showModal.value = !showModal.value
-}
-
-const closeModal = () => {
-    showModal.value = !hideModal.value
-}
-
-
-let form = ref({
-    id: ''
-
-})
-
 const props = defineProps({
     id: {
         type: String,
@@ -28,25 +11,32 @@ const props = defineProps({
     }
 })
 
+let form = ref([])
+let listProducts = ref([])
+
 onMounted(async () => {
-    showGetInvoiceData()
+    showGetInvoice()
     getProduct()
 })
 
 const getProduct = async () => {
     try {
         let responese = await axios.get('/api/getProduct');
-        console.log('Get Products :: ', responese);
+        // console.log('Get Products :: ', responese);
         listProducts.value = responese.data.products
     } catch (error) {
         console.error('Error Get Products :: ', error);
     }
 }
 
-const showGetInvoiceData = async () => {
-    let response = await axios.get(`/api/show_get_invoice_data/${props.id}`);
-    console.log('Get Invoice Data :: ', response.data.invoice);
-    form.value = response.data.invoice
+const showGetInvoice = async () => {
+    try {
+        let response = await axios.get(`/api/show_get_invoice/${props.id}`);
+        // console.log('Get Invoice :: ', response.data.invoice);
+        form.value = response.data.invoice
+    } catch (error) {
+        console.log('error get product all :', from);
+    }
 }
 
 const onDelete = async (id) => {
@@ -55,12 +45,12 @@ const onDelete = async (id) => {
 }
 
 const onFormEditInvoice = (id) => {
-    router.push(`/invoice/formedit/${id}`);
+    router.push(`/invoice/edit/${id}`);
 }
 
 const onPrint = () => {
     window.print()
-    router.push('/').catch(() => {})
+    // router.push('/').catch(() => {})
 }
 
 const onBack = () => {

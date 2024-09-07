@@ -16,7 +16,7 @@ let listProducts = ref([])
 onMounted(async () => {
     indexForm()
     getCustomers()
-    getProduct()
+    getProducts()
     removeitem()
     SubTotal()
     Total()
@@ -26,7 +26,7 @@ onMounted(async () => {
 const indexForm = async () => {
     try {
         let formData = await axios.get('/api/create_invoice');
-        console.log('Form Create Invoice :', formData.data);
+        // console.log('Form Create Invoice :', formData.data);
         form.value = formData.data
     } catch (error) {
         console.error('Error indexForm :', error);
@@ -35,7 +35,7 @@ const indexForm = async () => {
 
 const getCustomers = async () => {
     try {
-        let response = await axios.get('/api/get_all_customer');
+        let response = await axios.get('/api/get_customers');
         console.log('Customer respones', response);
         customers.value = response.data.customers
     } catch (error) {
@@ -44,24 +44,28 @@ const getCustomers = async () => {
 }
 
 const addCart = (item) => {
-    const itemcart = {
-        id: item.id,
-        item_code: item.item_code,
-        description: item.description,
-        unit_price: item.unit_price,
-        quantity: item.quantity,
+    try {
+        const itemcart = {
+            id: item.id,
+            item_code: item.item_code,
+            description: item.description,
+            unit_price: item.unit_price,
+            quantity: item.quantity,
+        }
+        listCart.value.push(itemcart)
+        closeModal()
+    } catch (error) {
+        console.log('error listCart :', $listCart);
     }
-    listCart.value.push(itemcart)
-    closeModal()
 }
 
 const removeitem = (i) => {
     listCart.value.splice(i, 1)
 }
 
-const getProduct = async () => {
+const getProducts = async () => {
     try {
-        let responese = await axios.get('/api/getProduct');
+        let responese = await axios.get('/api/get_products');
         console.log('Get Products :: ', responese);
         listProducts.value = responese.data.products
     } catch (error) {
@@ -142,33 +146,13 @@ const onReset = () => {
     <div class="container">
         <!--==================== Create Invoice New ====================-->
         <div class="invoices">
-            <div class="card__header">
-                <div class="col-md-6">
-                    <h2 class="invoice__title">
-                        <p style="font-size: 24px;">Invoice #{{ form.id }}</p>
-                        <p style="font-size: 16px; ">{{ form.created_at }}</p>
-                    </h2>
-                </div>
-                <div class="col-md-6">
-                    <ul class="card__header-list" style="margin-top:15px;">
-                        <li>
-                            <button class="button selectBtnFlat" @click="onPrint()">
-                                <i class="fas fa-print"></i>
-                                Print
-                            </button>
-                        </li>
-                        <li>
-                            <button class="button selectBtnFlat " @click="onBack()">
-                                <i class=" fas fa-pencil-alt"></i>
-                                Back
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
             <div class="invoice__header--title">
                 <p style="margin-top:15px;margin-left:15px;">
-                    <b style="font-size: 24px;">Create New</b>
+                    <b style="font-size: 16px;">
+                        <label style="font-size: 20px;" @click="onBack()">INDEX</label>
+                        <label style="font-size: 16px;"> / </label>
+                        <label style="font-size: 20px;" @click="onReload()">From Edit</label>
+                    </b>
                 </p>
                 <p class="invoice__header--title-1">
                     <img :src="logoImage" alt="Logo" style="width: 200px;">
@@ -178,6 +162,8 @@ const onReset = () => {
             <div class="card__content">
                 <div class="card__content--header">
                     <div>
+                        <p class="my-1">Number</p>
+                        <input type="text" class="input" v-model="form.number" readonly />
                         <p class="my-1">Customer</p>
                         <select name="" id="" class="input" v-model="customer_id">
                             <option disabled>Select Customer</option>
@@ -193,15 +179,20 @@ const onReset = () => {
                         <input id="due_date" type="date" class="input" v-model="form.due_date">
                     </div>
                     <div>
-                        <p class="my-1">Number</p>
-                        <input type="text" class="input" v-model="form.number">
                         <p class="my-1">Reference(Optional)</p>
-                        <input type="text" class="input" v-model="form.reference">
+                        <textarea name="reference" id="reference" cols="30" rows="5" class="input"
+                            v-model="form.reference"></textarea>
                     </div>
                 </div>
                 <div class="table">
                     <div class="table--heading2">
-                        <p>Item Description</p>
+                        <div style="padding: 0px 0px !important;">
+                            <a class="button" @click="openModal()">
+                                <span>
+                                    add product
+                                </span>
+                            </a>
+                        </div>
                         <p>Unit Price</p>
                         <p>Qty</p>
                         <p>Total</p>
@@ -210,7 +201,7 @@ const onReset = () => {
                     <div class="table--items2" v-for="(itemcart) in listCart" :key="itemcart.id">
                         <p> # {{ itemcart.item_code }} {{ itemcart.description }}</p>
                         <p>
-                            <input type="text" class="input" v-model="itemcart.unit_price">
+                            <input type="text" class="input" v-model="itemcart.unit_price" readonly />
                         </p>
                         <p>
                             <input type="text" class="input" v-model="itemcart.quantity">
@@ -223,11 +214,7 @@ const onReset = () => {
                             &times;
                         </p>
                     </div>
-                    <div style="padding: 10px 30px !important;">
-                        <button class="btn btn-sm btn__open--modal" @click="openModal()">
-                            Add New Line
-                        </button>
-                    </div>
+
                 </div>
                 <div class="table__footer">
                     <div class="document-footer">
@@ -237,29 +224,33 @@ const onReset = () => {
                     <div>
                         <div class="table__footer--subtotal">
                             <p>Sub Total</p>
-                            <span>$ {{ SubTotal() }}</span>
+                            <span>{{ SubTotal() }}</span>
+                            <p class="text-center">$</p>
                         </div>
                         <div class="table__footer--discount">
                             <p>Discount</p>
                             <input type="text" class="input" v-model="form.discount">
+                            <p> % </p>
                         </div>
                         <div class="table__footer--total">
-                            <p>Grand Total</p>
-                            <span>$ {{ Total() }}</span>
+                            <p>Total</p>
+                            <span> {{ Total() }}</span>
+                            <p> $ </p>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="card__header" style="margin-top: 40px;">
-                <div>
-                    <button class="button-save" @click="onSave()">
-                        Save
-                    </button>
-                </div>
-                <div>
-                    <button class="button-back" @click="onReset()">
-                        Reset
-                    </button>
+                <div class="card__footer text-center" style="margin-top: 20px;">
+                    <div>
+
+                    </div>
+                    <div>
+                        <button style="background-color: #0d6efd ;" class="button" @click="onSave()">
+                            Save
+                        </button>
+                        <button style="background-color: #dc3545;" class="button" @click="onReset()">
+                            Reset
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -297,11 +288,3 @@ const onReset = () => {
 
     </div>
 </template>
-
-<style>
-.font-footer-data {
-    margin-left: 30px;
-    font-size: 16px;
-    font-weight: bold;
-}
-</style>

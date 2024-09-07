@@ -22,31 +22,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/export_data_test', function () {
-    return response()->json([
-        'datalist' => [
-            [
-                'id' => 1,
-                'name' => "oat"
-            ],
-            [
-                'id' => 2,
-                'name' => "nipitphon"
-            ]
-        ]
-    ]);
-});
-
-Route::get('/get_all_invoice', [InvoiceController::class, 'getAllInvoice']);
-Route::get('/show_get_invoice_data/{id}', [InvoiceController::class, 'showGetInvoiceData']);
-Route::get('/search_invoice', [InvoiceController::class, 'searchInvoice']);
+// Invoice
+Route::get('/get_invoices', [InvoiceController::class, 'getInvoices']);
+Route::get('/search_invoices', [InvoiceController::class, 'searchInvoices']);
 Route::get('/create_invoice', [InvoiceController::class, 'createInvoice']);
 Route::post('/createInvoiceConfig', [InvoiceController::class, 'createInvoiceConfig']);
-// Route::get('/form_edit_invoice_data/{id}', [InvoiceController::class, 'formEditInvoiceData']);
+
+Route::get('/show_get_invoice/{id}', [InvoiceController::class, 'showGetInvoice']);
 Route::post('/update_invoice', [InvoiceController::class, 'updateInvoice']);
+
+Route::delete('/delete_invoice_item/{id}', [InvoiceController::class, 'deleteInvoiceItem']);
 Route::delete('/delete_invoice/{id}', [InvoiceController::class, 'deleteInvoice']);
 
-Route::get('/get_all_customer', [CustomerController::class, 'getAllCustomer']);
+// Customer
+Route::get('/get_customers', [CustomerController::class, 'getCustomers']);
 
-Route::get('/getProduct', [ProductController::class, 'getProduct']);
+// Product
+Route::get('/get_products', [ProductController::class, 'getProducts']);
 
