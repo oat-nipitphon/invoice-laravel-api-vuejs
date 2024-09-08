@@ -18,7 +18,7 @@
 
     const onDelete = async (id) => {
         await axios.delete(`/api/delete_invoice/${id}`);
-        router.push('/');
+        location.reload()
     }
 
     let invoices = ref([])

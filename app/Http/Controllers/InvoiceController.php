@@ -173,6 +173,8 @@ class InvoiceController extends Controller
     }
 
     public function updateSqlEditInvoice(Request $request, $id){
+
+        return $request;
         try {
             $invoice = Invoice::where('id', $id)->first();
             $invoice_item = $request->input('invoice_item');
@@ -185,7 +187,7 @@ class InvoiceController extends Controller
                     'date' => $request->date,
                     'due_date' => $request->due_date,
                     'discount' => $request->discount,
-                    'refernce' => $request->refernce,
+                    'refernce' => $request->reference,
                 ];
                 $invoice->update($request->all());
             }

@@ -241,12 +241,16 @@ const onSave = () => {
 
                     </div>
                     <div>
-                        <button style="background-color: #0d6efd ;" class="button" @click="onSave()">
-                            Save
-                        </button>
-                        <button style="background-color: #dc3545;" class="button" @click="onReset()">
-                            Reset
-                        </button>
+                        <a class="btn btn-sm button" @click="onSave()">
+                            <span>
+                                Save
+                            </span>
+                        </a>
+                        <a class="btn btn-sm button" @click="onReset()">
+                            <span>
+                                Reset
+                            </span>
+                        </a>
                     </div>
                 </div>
             </div>

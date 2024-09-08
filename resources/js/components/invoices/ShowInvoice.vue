@@ -67,16 +67,18 @@ const showGetInvoice = async () => {
                 <div class="col-md-6">
                     <ul class="card__header-list" style="margin-top:15px;">
                         <li>
-                            <button class="button selectBtnFlat" @click="onPrint()">
-                                <i class="fas fa-print"></i>
-                                Print
-                            </button>
+                            <a class="btn btn-sm button" @click="onPrint()">
+                                <span>
+                                    Print
+                                </span>
+                            </a>
                         </li>
                         <li>
-                            <button class="button selectBtnFlat " @click="onBack()">
-                                <i class=" fas fa-pencil-alt"></i>
-                                Back
-                            </button>
+                            <a class="btn btn-sm button " @click="onBack()">
+                                <span>
+                                    Back
+                                </span>
+                            </a>
                         </li>
                     </ul>
                 </div>

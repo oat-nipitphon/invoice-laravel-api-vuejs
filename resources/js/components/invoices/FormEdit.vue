@@ -2,6 +2,7 @@
 import logoImage from '@/../assets/img/logo.png'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios';
 
 const router = useRouter()
 const onPrint = () => {
