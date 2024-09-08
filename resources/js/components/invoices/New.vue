@@ -1,10 +1,29 @@
 <script setup>
-import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
-import router from '../../router/index.js'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+const onBack = () => {
+    router.push('/');
+}
+const onReset = () => {
+    location.reload()
+}
 
 const showModal = ref(false)
 const hideModal = ref(true)
+const openModal = () => {
+    showModal.value = !showModal.value
+}
+
+const closeModal = () => {
+    showModal.value = !hideModal.value
+}
 
 let form = ref([])
 let customers = ref([])
@@ -73,18 +92,10 @@ const getProducts = async () => {
     }
 }
 
-const openModal = () => {
-    showModal.value = !showModal.value
-}
-
-const closeModal = () => {
-    showModal.value = !hideModal.value
-}
-
 const SubTotal = () => {
     let total = 0;
     listCart.value.map((data) => {
-        total += data.quantity * data.unit_price;
+        total += (data.quantity * data.unit_price);
     });
     return total;
 };
@@ -125,20 +136,6 @@ const onSave = () => {
         router.push('/')
     }
 }
-
-const onPrint = () => {
-    window.print()
-    // router.push('/').catch(() => {})
-}
-
-const onBack = () => {
-    router.push('/');
-}
-
-const onReset = () => {
-    location.reload()
-}
-
 
 </script>
 <template>

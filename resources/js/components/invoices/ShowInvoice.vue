@@ -1,8 +1,24 @@
 <script setup>
 
-import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
-import router from '../../router/index.js'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const onBack = () => {
+    router.push('/');
+}
+const onReload = () => {
+    location.reload();
+}
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+
+let form = ref([])
+let listProducts = ref([])
 
 const props = defineProps({
     id: {
@@ -10,9 +26,6 @@ const props = defineProps({
         default: ''
     }
 })
-
-let form = ref([])
-let listProducts = ref([])
 
 onMounted(async () => {
     showGetInvoice()
@@ -37,20 +50,6 @@ const showGetInvoice = async () => {
     } catch (error) {
         console.log('error get product all :', from);
     }
-}
-
-const onBack = () => {
-    router.push('/');
-}
-
-const onReload = () => {
-    location.reload();
-}
-
-
-const onPrint = () => {
-    window.print()
-    // router.push('/').catch(() => {})
 }
 
 </script>
@@ -177,29 +176,3 @@ const onPrint = () => {
         </div>
     </div>
 </template>
-<!-- Start Css Custom -->
-<style>
-.font-title {
-    size: 16px;
-}
-
-.font-content {
-    size: 16px;
-}
-
-.button {
-    display: inline-block;
-    border-radius: 4px;
-    background-color: #f4511e;
-    border: none;
-    color: #FFFFFF;
-    text-align: center;
-    font-size: 16px;
-    padding: 3px;
-    width: 70px;
-    transition: all 0.5s;
-    cursor: pointer;
-    margin: 5px;
-}
-</style>
-<!-- End Css Custom -->

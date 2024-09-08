@@ -1,7 +1,30 @@
 <script setup>
-import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
-import router from '../../router/index.js';
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+const onBack = () => {
+    router.push('/');
+}
+
+const onReset = () => {
+    location.reload();
+}
+
+const showModal = ref(false)
+const hideModal = ref(true)
+const openModal = () => {
+    showModal.value = !showModal.value
+}
+
+const closeModal = () => {
+    showModal.value = !hideModal.value
+}
 
 let form = ref([])
 let customers = ref([])
@@ -21,16 +44,17 @@ onMounted(async () => {
     getInvoiceFormEdit()
     getProducts()
     getCustomers()
-    removeitemCart()
+    removeItemCart()
     SubTotal()
+    Discount()
     Total()
     onUpdate()
 })
 
-
 const getInvoiceFormEdit = async () => {
     try {
         let response = await axios.get(`/api/show_get_invoice/${props.id}`);
+        console.log(response);
         form.value = response.data.invoice
     } catch (error) {
         console.log('Error props id get invoice :: ', response);
@@ -57,74 +81,82 @@ const getProducts = async () => {
     }
 }
 
+
+const SubTotal = () => {
+    let total = 0
+    if(form.value.invoice_item){
+        form.value.invoice_item.map((data) => {
+            total += data.quantity * data.unit_price;
+        });
+    }
+    return total;
+};
+
+const Discount = () => {
+    if (form.value.discount){
+        return SubTotal() * form.value.discount / 100;
+    }
+}
+
+const Total = () => {
+    let total = 0
+    if(form.value.invoice_item){
+        form.value.invoice_item.map((data) => {
+            return total =+ SubTotal() - Discount()
+        })
+    }
+    return total;
+}
+
 const addCart = (item) => {
     const itemcart = {
-        id: item.id,
+        product_id: item.id,
         item_code: item.item_code,
         description: item.description,
         unit_price: item.unit_price,
         quantity: item.quantity,
     }
-    listCart.value.push(itemcart)
+    form.value.invoice_item.push(itemcart)
     closeModal()
 }
 
-const removeitemCart = (i) => {
-    listCart.value.splice(i, 1)
-}
-
-const showModal = ref(false)
-const hideModal = ref(true)
-
-const openModal = () => {
-    showModal.value = !showModal.value
-}
-
-const closeModal = () => {
-    showModal.value = !hideModal.value
-}
-
-const SubTotal = () => {
-    let total = 0;
-    listCart.value.map((data) => {
-        total += data.quantity * data.unit_price;
-    });
-    return total;
-};
-
-const Discount = () => {
-    if (!form.value.discount) return 0; // Check if discount exists
-    return SubTotal() * form.value.discount / 100;
-}
-
-const Total = () => {
-    return SubTotal() - Discount()
-}
-
-const onDeleteItem = (id, i) => {
+const removeItemCart = (id, i) => {
     form.value.invoice_item.splice(i, 1)
     if (id != undefined) {
-        axios.get(`/api/delete_invoice_item/${id}`);
+        axios.get(`/api/CartItems/delete_invoice_item/${id}`);
     }
 }
 
 const onUpdate = async (id) => {
-    console.log('Button Update Invoice' + id);
-}
+    try {
+        if(form.value.invoice_item.length>=1){
+            // console.log(JSON.stringify(form.value.invoice_item));
+            let subtotal = 0
+            subtotal = SubTotal()
 
-const onPrint = () => {
-    window.print()
-    // router.push('/').catch(() => {})
-}
+            let total = 0
+            total = Total()
 
-const onBack = () => {
-    router.push('/');
-}
+            const formData = new FormData()
+            formData.append('invoice_item', JSON.stringify(form.value.invoice_item))
+            formData.append('customer_id', form.value.customer_id)
+            formData.append('date', form.value.date)
+            formData.append('due_date', form.value.due_date)
+            formData.append('number', form.value.number)
+            formData.append('reference', form.value.reference)
+            formData.append('discount', form.value.discount)
+            formData.append('subtotal', subtotal)
+            formData.append('total', total)
+            // formData.append('terms_and_conditions', form.value.terms_and_conditions)
 
-const onReset = () => {
-    location.reload();
+            axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData)
+            form.value.invoice_item = []
+            router.push('/')
+        }
+    } catch (error) {
+        console.log('Error Edit :: ', error);
+    }
 }
-
 
 </script>
 <template>
@@ -135,7 +167,7 @@ const onReset = () => {
                 <!-- <div class="logo">..</div> -->
                 <div class="invoice__header--title">
                     <p style="margin-top:15px;margin-left:15px;">
-                        <b style="font-size: 16px;">
+                        <b>
                             <label style="font-size: 20px;" @click="onBack()">INDEX</label>
                             <label style="font-size: 16px;"> / </label>
                             <label style="font-size: 20px;" @click="onReload()">Edit</label>
@@ -148,7 +180,7 @@ const onReset = () => {
                 </div>
                 <div class="invoice__header--item">
                     <div>
-                        <p style="margin-top: 5px;">
+                        <p style="margin-top: 10px;">
                             <b>Invoice :: </b>
                             <input type="text" class="input" name="number" id="number" v-model="form.number" readonly />
                         </p>
@@ -172,15 +204,15 @@ const onReset = () => {
                         </p>
                     </div>
                     <div>
-                        <p style="margin-top: 5px;">
+                        <p style="margin-top: 10px;">
                             <b>Date</b>
                             <input type="date" class="input" name="date" id="date" v-model="form.date">
                         </p>
-                        <p style="margin-top: 5px;">
+                        <p style="margin-top: 10px;">
                             <b>Due Date</b>
                             <input type="date" class="input" name="due_date" id="due_date" v-model="form.due_date">
                         </p>
-                        <p style="margin-top: 5px;">
+                        <p style="margin-top: 10px;">
                             <b>Reference</b>
                             <textarea name="reference" id="reference" cols="50" rows="6"
                                 v-model="form.reference"></textarea>
@@ -196,52 +228,54 @@ const onReset = () => {
                 </div>
                 <div class="table py1">
                     <div class="table--heading2">
-                        <p>ID</p>
-                        <p>Item Description</p>
+                        <p>ID Item Description</p>
                         <p>Unit Price</p>
                         <p>Qty</p>
                         <p style="text-align: center;">Total</p>
                         <p style="text-align: center;">#</p>
                     </div>
-                    <div class="table--items2" v-for="(itemcart, i) in form.invoice_item" :key="itemcart.id" :value="i+1">
-                        <p v-if="itemcart.product">{{ itemcart.product.item_code }}</p>
-                        <p v-if="itemcart.product">{{ itemcart.product.description }}</p>
-                        <p v-else> {{ itemcart.item_code }} {{ itemcart.description }}</p>
+                    <div class="table--items2" v-for="(itemcart, i) in form.invoice_item" :key="itemcart.id" >
+                        <p v-if="itemcart.product">{{ itemcart.product.item_code }}{{ itemcart.product.description }}</p>
+                        <p v-else> {{ itemcart.item_code }}{{ itemcart.description }}</p>
                         <p><input type="text" class="input" v-model="itemcart.unit_price" readonly /></p>
                         <p><input type="text" class="input" v-model="itemcart.quantity"></p>
                         <p style="text-align: center; font-weight: bold;">$
                             {{ itemcart.unit_price * itemcart.quantity }}
                         </p>
-                        <p style="text-align: center; font-weight: bold; color: red; font-size: 18px;cursor: pointer;"
-                        @click="removeitemCart()">
+                        <p style="text-align: center; font-weight: bold; color: red; font-size: 18px;cursor: pointer;" :value="i+1"
+                        @click="removeItemCart(itemcart.id, i)">
                             &times;
                         </p>
                     </div>
                 </div>
                 <div class="invoice__total">
                     <div>
-                        <div class="invoice__subtotal--item1">
-                            <p>Sub Total</p>
-                            <span>{{ form.sub_total }}</span>
-                        </div>
-                        <div class="invoice__subtotal--item2">
-                            <p>Discount</p>
-                            <span>{{ form.discount }}</span>
-                        </div>
-                    </div>
-                    <div>
                         <div class="grand__total">
                             <div class="grand__total--items">
-                                <p>Grand Total</p>
-                                <span>{{ form.total }}</span>
+                                <p style="text-align: center;">Grand Total</p>
+                                <span style="text-align: center;">{{ Total() }}</span>
+                                <span style="text-align: center;"></span>
                             </div>
+                        </div>
+                    </div>
+                    <div style="margin-right: 60px;">
+                        <div class="invoice__subtotal--item1">
+                            <p style="font-weight: 700;">Discount</p>
+                            <span><input style="text-align: center;" size="4" type="text" class="input"
+                                v-model="form.discount"></span>
+                            <span style="text-align: center; font-weight: 700;"> % </span>
+                        </div>
+                        <div class="invoice__subtotal--item1">
+                            <p style="font-weight: 700;">Sub Total</p>
+                            <span style="text-align: center; font-weight: 700;">{{ SubTotal() }}</span>
+                            <span style="text-align: center; font-weight: 700;">$</span>
                         </div>
                     </div>
                 </div>
                 <div class="cart-footer-btn-action">
                     <div style="float: right;">
-                        <button class="button" @click="onUpdate()">
-                            <span>Save</span>
+                        <button class="button" @click="onUpdate(form.id)">
+                            <span>Save{{ form.id }}</span>
                         </button>
                         <button class="button" @click="onReset()">
                             <span>Reset</span>

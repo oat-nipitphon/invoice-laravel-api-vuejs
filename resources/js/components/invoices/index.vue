@@ -1,7 +1,25 @@
 <script setup>
 
     import { onMounted, ref } from 'vue'
-    import router from '../../router/index.js';
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter()
+    const onShow = (id) => {
+        router.push('/invoice/show/'+id);
+    }
+
+    const onNew = () => {
+        router.push('/invoice/new');
+    }
+
+    const onEdit = (id) => {
+        router.push(`/invoice/edit/${id}`);
+    }
+
+    const onDelete = async (id) => {
+        await axios.delete(`/api/delete_invoice/${id}`);
+        router.push('/');
+    }
 
     let invoices = ref([])
     let searchInvoice = ref("")
@@ -41,24 +59,6 @@
             search();
         }, 300);
     }
-
-    const onShow = (id) => {
-        router.push('/invoice/show/'+id);
-    }
-
-    const onNew = () => {
-        router.push('/invoice/new');
-    }
-
-    const onEdit = (id) => {
-        router.push(`/invoice/edit/${id}`);
-    }
-
-    const onDelete = async (id) => {
-    await axios.delete(`/api/delete_invoice/${id}`);
-    router.push('/');
-}
-
 
 </script>
 <template>
