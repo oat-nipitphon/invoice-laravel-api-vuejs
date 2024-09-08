@@ -1,33 +1,12 @@
 <script setup>
-import logoImage from '@/../assets/img/logo.png'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-const onPrint = () => {
-    window.print()
-    // router.push('/').catch(() => {})
-}
-const onBack = () => {
-    router.push('/');
-}
-const onReset = () => {
-    location.reload()
-}
+import logoImage from '@/../assets/img/logo.png'
+import router from '../../router/index.js'
 
 const showModal = ref(false)
 const hideModal = ref(true)
-const openModal = () => {
-    showModal.value = !showModal.value
-}
 
-const closeModal = () => {
-    showModal.value = !hideModal.value
-}
-
-let form = ref({
-    id: ''
-})
+let form = ref([])
 let customers = ref([])
 let customer_id = ref([])
 let item = ref([])
@@ -45,27 +24,39 @@ onMounted(async () => {
 })
 
 const indexForm = async () => {
-    let formData = await axios.get('/api/create_invoice');
-    // console.log('Form Create Invoice :', formData.data);
-    form.value = formData.data
+    try {
+        let formData = await axios.get('/api/create_invoice');
+        // console.log('Form Create Invoice :', formData.data);
+        form.value = formData.data
+    } catch (error) {
+        console.error('Error indexForm :', error);
+    }
 }
 
 const getCustomers = async () => {
-    let response = await axios.get('/api/get_customers');
-    // console.log('Customer respones', response);
-    customers.value = response.data.customers
+    try {
+        let response = await axios.get('/api/get_customers');
+        console.log('Customer respones', response);
+        customers.value = response.data.customers
+    } catch (error) {
+        console.error('Error getCustomers :', error);
+    }
 }
 
 const addCart = (item) => {
-    const itemcart = {
-        id: item.id,
-        item_code: item.item_code,
-        description: item.description,
-        unit_price: item.unit_price,
-        quantity: item.quantity,
+    try {
+        const itemcart = {
+            id: item.id,
+            item_code: item.item_code,
+            description: item.description,
+            unit_price: item.unit_price,
+            quantity: item.quantity,
+        }
+        listCart.value.push(itemcart)
+        closeModal()
+    } catch (error) {
+        console.log('error listCart :', $listCart);
     }
-    listCart.value.push(itemcart)
-    closeModal()
 }
 
 const removeitem = (i) => {
@@ -73,16 +64,27 @@ const removeitem = (i) => {
 }
 
 const getProducts = async () => {
-    let responese = await axios.get('/api/get_products');
-    // console.log('Get Products :: ', responese);
-    listProducts.value = responese.data.products
+    try {
+        let responese = await axios.get('/api/get_products');
+        console.log('Get Products :: ', responese);
+        listProducts.value = responese.data.products
+    } catch (error) {
+        console.error('Error Get Products :: ', error);
+    }
+}
 
+const openModal = () => {
+    showModal.value = !showModal.value
+}
+
+const closeModal = () => {
+    showModal.value = !hideModal.value
 }
 
 const SubTotal = () => {
     let total = 0;
     listCart.value.map((data) => {
-        total += (data.quantity * data.unit_price);
+        total += data.quantity * data.unit_price;
     });
     return total;
 };
@@ -122,6 +124,19 @@ const onSave = () => {
         listCart.value = []
         router.push('/')
     }
+}
+
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+
+const onBack = () => {
+    router.push('/');
+}
+
+const onReset = () => {
+    location.reload()
 }
 
 </script>
