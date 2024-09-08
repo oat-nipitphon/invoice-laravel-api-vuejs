@@ -111,7 +111,7 @@ const Total = () => {
 
 const addCart = (item) => {
     const itemcart = {
-        product_id: item.id,
+        product_id: item.product_id,
         item_code: item.item_code,
         description: item.description,
         unit_price: item.unit_price,
@@ -128,34 +128,59 @@ const removeItemCart = (id, i) => {
     }
 }
 
-const onUpdate = async (id) => {
+// const onUpdate = async (id) => {
+//     try {
+//         if(form.value.invoice_item.length>=1){
+//             // console.log(JSON.stringify(form.value.invoice_item));
+//             let subtotal = 0
+//             subtotal = SubTotal()
+
+//             let total = 0
+//             total = Total()
+
+//             const formData = new FormData()
+//             formData.append('invoice_item', JSON.stringify(form.value.invoice_item))
+//             formData.append('customer_id', form.value.customer_id)
+//             formData.append('date', form.value.date)
+//             formData.append('due_date', form.value.due_date)
+//             formData.append('number', form.value.number)
+//             formData.append('reference', form.value.reference)
+//             formData.append('discount', form.value.discount)
+//             formData.append('subtotal', subtotal)
+//             formData.append('total', total)
+//             // formData.append('terms_and_conditions', form.value.terms_and_conditions)
+
+//             axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData)
+//             form.value.invoice_item = []
+//             router.push('/')
+//         }
+//     } catch (error) {
+//         console.log('Error Edit :: ', error);
+//     }
+// }
+
+const onUpdate = async () => {
     try {
-        if(form.value.invoice_item.length>=1){
-            // console.log(JSON.stringify(form.value.invoice_item));
-            let subtotal = 0
-            subtotal = SubTotal()
+        if(form.value.invoice_item.length > 0){
+            const formData = new FormData();
+            formData.append('invoice_item', JSON.stringify(form.value.invoice_item));
+            formData.append('customer_id', form.value.customer_id);
+            formData.append('date', form.value.date);
+            formData.append('due_date', form.value.due_date);
+            formData.append('number', form.value.number);
+            formData.append('reference', form.value.reference);
+            formData.append('discount', form.value.discount);
+            formData.append('subtotal', SubTotal());
+            formData.append('total', Total());
 
-            let total = 0
-            total = Total()
-
-            const formData = new FormData()
-            formData.append('invoice_item', JSON.stringify(form.value.invoice_item))
-            formData.append('customer_id', form.value.customer_id)
-            formData.append('date', form.value.date)
-            formData.append('due_date', form.value.due_date)
-            formData.append('number', form.value.number)
-            formData.append('reference', form.value.reference)
-            formData.append('discount', form.value.discount)
-            formData.append('subtotal', subtotal)
-            formData.append('total', total)
-            // formData.append('terms_and_conditions', form.value.terms_and_conditions)
-
-            axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData)
-            form.value.invoice_item = []
-            router.push('/')
+            axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData);
+            console.log(response.data);
+            location.reload();
+        } else {
+            console.error('No items in the invoice');
         }
     } catch (error) {
-        console.log('Error Edit :: ', error);
+        console.log('Error during update:', error);
     }
 }
 
@@ -276,7 +301,7 @@ const onUpdate = async (id) => {
                 <div class="cart-footer-btn-action">
                     <div style="float: right;">
                         <button class="button" @click="onUpdate(form.id)">
-                            <span>Save{{ form.id }}</span>
+                            <span>Save</span>
                         </button>
                         <button class="button" @click="onReset()">
                             <span>Reset</span>

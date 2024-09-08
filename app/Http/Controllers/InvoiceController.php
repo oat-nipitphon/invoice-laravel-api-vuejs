@@ -172,44 +172,92 @@ class InvoiceController extends Controller
         }
     }
 
-    public function updateSqlEditInvoice(Request $request, $id){
+    // public function updateSqlEditInvoice(Request $request, $id){
+    //     try {
 
-        return $request;
+    //         $invoice = Invoice::where('id', $id)->first();
+    //         $invoice = [
+    //             'sub_total' => $request->subtotal,
+    //             'total' => $request->total,
+    //             'customer' => $request->customer_id,
+    //             'number' => $request->number,
+    //             'date' => $request->date,
+    //             'due_date' => $request->due_date,
+    //             'discount' => $request->discount,
+    //             'refernce' => $request->reference,
+    //         ];
+    //         $invoice->update($request->all());
+
+    //         $invoice->cartItemDeleteInvoiceItem()->delete();
+
+    //         $invoice_item = $request->input('invoice_item');
+    //         foreach($invoice_item as $item){
+    //             $itemdata = [
+    //                 'product_id' => $item->product_id,
+    //                 'invoice_id' => $invoice->id,
+    //                 'quantity' => $item->quantity,
+    //                 'unit_price' => $item->unit_price,
+    //             ];
+    //             InvoiceItem::create($itemdata[]);
+    //         }
+
+    //         return response()->json([
+
+    //             'status' => 200,
+    //             'megess' => 'Update Invoice and Invoiceitem Success.',
+    //             'response' => response
+
+    //         ],200);
+
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+
+    //             'status' => 500,
+    //             'error' => 'An error occurred: ' . $e->getMessage(),
+
+    //         ], 500);
+    //     }
+    // }
+
+    public function updateSqlEditInvoice(Request $request, $id){
         try {
+            // ตรวจสอบว่าคุณได้ query ข้อมูล invoice ถูกต้อง
             $invoice = Invoice::where('id', $id)->first();
-            $invoice_item = $request->input('invoice_item');
+
             if(isset($invoice)){
-                $invoice = [
+                // ตรวจสอบการอัปเดตข้อมูล
+                $invoice->update([
                     'sub_total' => $request->subtotal,
                     'total' => $request->total,
-                    'customer' => $request->customer,
+                    'customer_id' => $request->customer_id, // ระวังการอ้างอิง key
                     'number' => $request->number,
                     'date' => $request->date,
                     'due_date' => $request->due_date,
                     'discount' => $request->discount,
-                    'refernce' => $request->reference,
-                ];
-                $invoice->update($request->all());
+                    'reference' => $request->reference,
+                ]);
             }
-            if(isset($invoice_item)){
 
+            // ตรวจสอบว่า $invoice_item ถูกส่งมาและเป็น array หรือ object
+            $invoice_item = json_decode($request->input('invoice_item'), true);
+            if($invoice_item){
+                // ลบรายการเดิม
                 $invoice->cartItemDeleteInvoiceItem()->delete();
                 foreach($invoice_item as $item){
-                    $itemdata = [
-                        'product_id' => $item->product_id,
+                    // ตรวจสอบข้อมูลที่ถูกต้องก่อน insert
+                    InvoiceItem::create([
+                        'product_id' => $item['product_id'],
                         'invoice_id' => $invoice->id,
-                        'quantity' => $item->quantity,
-                        'unit_price' => $item->unit_price,
-                    ];
-                    InvoiceItem::create($itemdata);
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                    ]);
                 }
             }
-            return response()->json([
-                'status' => 200,
-                'megess' => 'Update Invoice and Invoiceitem Success.'
-            ],200);
+
+            return response()->json(['status' => 200, 'message' => 'Update Success'], 200);
 
         } catch (\Exception $e) {
+            // จับข้อผิดพลาดที่เกิดขึ้นและแสดงผล
             return response()->json([
                 'status' => 500,
                 'error' => 'An error occurred: ' . $e->getMessage(),

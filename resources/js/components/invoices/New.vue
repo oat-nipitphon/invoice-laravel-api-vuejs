@@ -25,7 +25,9 @@ const closeModal = () => {
     showModal.value = !hideModal.value
 }
 
-let form = ref([])
+let form = ref({
+    id: ''
+})
 let customers = ref([])
 let customer_id = ref([])
 let item = ref([])
@@ -45,8 +47,9 @@ onMounted(async () => {
 const indexForm = async () => {
     try {
         let formData = await axios.get('/api/create_invoice');
-        // console.log('Form Create Invoice :', formData.data);
+        console.log('Form Create Invoice :', formData.data.number);
         form.value = formData.data
+        console.log(form.value);
     } catch (error) {
         console.error('Error indexForm :', error);
     }
@@ -55,7 +58,7 @@ const indexForm = async () => {
 const getCustomers = async () => {
     try {
         let response = await axios.get('/api/get_customers');
-        console.log('Customer respones', response);
+        // console.log('Customer respones', response);
         customers.value = response.data.customers
     } catch (error) {
         console.error('Error getCustomers :', error);
@@ -85,7 +88,7 @@ const removeitem = (i) => {
 const getProducts = async () => {
     try {
         let responese = await axios.get('/api/get_products');
-        console.log('Get Products :: ', responese);
+        // console.log('Get Products :: ', responese);
         listProducts.value = responese.data.products
     } catch (error) {
         console.error('Error Get Products :: ', error);
@@ -160,7 +163,7 @@ const onSave = () => {
                 <div class="card__content--header">
                     <div>
                         <p class="my-1">Number</p>
-                        <input type="text" class="input" v-model="form.number" readonly />
+                        <input type="text" class="input" v-model="form.number"/>
                         <p class="my-1">Customer</p>
                         <select name="" id="" class="input" v-model="customer_id">
                             <option disabled>Select Customer</option>
