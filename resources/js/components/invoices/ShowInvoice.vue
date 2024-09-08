@@ -39,26 +39,18 @@ const showGetInvoice = async () => {
     }
 }
 
-const onDelete = async (id) => {
-    await axios.delete(`/api/delete_invoice/${id}`);
-    router.push('/');
-}
-
-const onFormEditInvoice = (id) => {
-    router.push(`/invoice/edit/${id}`);
-}
-
-const onPrint = () => {
-    window.print()
-    // router.push('/').catch(() => {})
-}
-
 const onBack = () => {
     router.push('/');
 }
 
 const onReload = () => {
     location.reload();
+}
+
+
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
 }
 
 </script>
@@ -79,18 +71,6 @@ const onReload = () => {
                             <button class="button selectBtnFlat" @click="onPrint()">
                                 <i class="fas fa-print"></i>
                                 Print
-                            </button>
-                        </li>
-                        <li>
-                            <button class="button selectBtnFlat btn btn-secondary" @click="onFormEditInvoice(form.id)">
-                                <i class=" fas fa-save"></i>
-                                Edit
-                            </button>
-                        </li>
-                        <li>
-                            <button class="button selectBtnFlat " @click="onDelete(form.id)">
-                                <i class=" fas fa-pencil-alt"></i>
-                                Delete
                             </button>
                         </li>
                         <li>

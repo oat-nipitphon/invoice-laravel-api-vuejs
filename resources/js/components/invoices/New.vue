@@ -196,7 +196,7 @@ const onReset = () => {
                         <p>Unit Price</p>
                         <p>Qty</p>
                         <p>Total</p>
-                        <p></p>
+                        <p> # </p>
                     </div>
                     <div class="table--items2" v-for="(itemcart) in listCart" :key="itemcart.id">
                         <p> # {{ itemcart.item_code }} {{ itemcart.description }}</p>
@@ -232,7 +232,7 @@ const onReset = () => {
                             <input type="text" class="input" v-model="form.discount">
                             <p> % </p>
                         </div>
-                        <div class="table__footer--total">
+                        <div class="table__footer--total grand__total">
                             <p>Total</p>
                             <span> {{ Total() }}</span>
                             <p> $ </p>

@@ -7,12 +7,16 @@ use App\Models\Invoice;
 use App\Models\Customer;
 use App\Models\Counter;
 use App\Models\InvoiceItem;
+use App\Models\Product;
+
 
 class InvoiceController extends Controller
 {
 
     public function getInvoices () {
-        $invoices = Invoice::with('customer')->orderBy('id', 'DESC')->get();
+        $invoices = Invoice::with('customer')->orderBy('id', 'ASC')->get();
+        // $products = Product::orderBy('id', 'ABC')->get();
+        // return $products;
         return response()->json([
             'invoices' => $invoices
         ],200);
