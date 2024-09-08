@@ -76,7 +76,10 @@ class InvoiceController extends Controller
                 'unit_price' => 0,
                 'quantity' => 1
             ],
+
         ];
+        // dd($formData['number']);
+
 
         return response()->json([
             'formData' => $formData,

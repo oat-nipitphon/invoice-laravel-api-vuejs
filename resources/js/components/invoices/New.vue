@@ -25,9 +25,9 @@ onMounted(async () => {
 
 const indexForm = async () => {
     try {
-        let formData = await axios.get('/api/create_invoice');
-        // console.log('Form Create Invoice :', formData.data);
-        form.value = formData.data
+        let response = await axios.get('/api/create_invoice');
+        // console.log('Form Create Invoice :', response.data.formData.number);
+        form.value = response.data.formData; // ใช้ formData แทน FormData
     } catch (error) {
         console.error('Error indexForm :', error);
     }
@@ -162,7 +162,7 @@ const onReset = () => {
                 <div class="card__content--header">
                     <div>
                         <p class="my-1">Number</p>
-                        <input type="text" class="input" v-model="form.number">
+                        <input type="text" class="input" v-model="form.number" readonly />
                         <p class="my-1">Customer</p>
                         <select name="" id="" class="input" v-model="customer_id">
                             <option disabled>Select Customer</option>
