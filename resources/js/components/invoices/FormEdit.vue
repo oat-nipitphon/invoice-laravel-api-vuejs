@@ -1,0 +1,329 @@
+<script setup>
+import logoImage from '@/../assets/img/logo.png'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios';
+
+const router = useRouter()
+const onPrint = () => {
+    window.print()
+    // router.push('/').catch(() => {})
+}
+const onBack = () => {
+    router.push('/');
+}
+
+const onReset = () => {
+    location.reload();
+}
+
+const showModal = ref(false)
+const hideModal = ref(true)
+const openModal = () => {
+    showModal.value = !showModal.value
+}
+
+const closeModal = () => {
+    showModal.value = !hideModal.value
+}
+
+let form = ref([])
+let customers = ref([])
+let customer_id = ref([])
+let item = ref([])
+let listCart = ref([])
+let listProducts = ref([])
+
+const props = defineProps({
+    id: {
+        type: String,
+        default: ''
+    }
+})
+
+onMounted(async () => {
+    getInvoiceFormEdit()
+    getProducts()
+    getCustomers()
+    removeItemCart()
+    SubTotal()
+    Discount()
+    Total()
+    onUpdate()
+})
+
+const getInvoiceFormEdit = async () => {
+    try {
+        let response = await axios.get(`/api/show_get_invoice/${props.id}`);
+        console.log(response);
+        form.value = response.data.invoice
+    } catch (error) {
+        console.log('Error props id get invoice :: ', response);
+    }
+}
+
+const getCustomers = async () => {
+    try {
+        let response = await axios.get('/api/get_customers');
+        console.log('Customer respones', response);
+        customers.value = response.data.customers
+    } catch (error) {
+        console.error('Error getCustomers :', error);
+    }
+}
+
+const getProducts = async () => {
+    try {
+        let responese = await axios.get('/api/get_products');
+        console.log('Get Products :: ', responese);
+        listProducts.value = responese.data.products
+    } catch (error) {
+        console.error('Error Get Products :: ', error);
+    }
+}
+
+
+const SubTotal = () => {
+    let total = 0
+    if(form.value.invoice_item){
+        form.value.invoice_item.map((data) => {
+            total += data.quantity * data.unit_price;
+        });
+    }
+    return total;
+};
+
+const Discount = () => {
+    if (form.value.discount){
+        return SubTotal() * form.value.discount / 100;
+    }
+}
+
+const Total = () => {
+    let total = 0
+    if(form.value.invoice_item){
+        form.value.invoice_item.map((data) => {
+            return total =+ SubTotal() - Discount()
+        })
+    }
+    return total;
+}
+
+const addCart = (item) => {
+    const itemcart = {
+        product_id: item.id,
+        item_code: item.item_code,
+        description: item.description,
+        unit_price: item.unit_price,
+        quantity: item.quantity,
+    }
+    form.value.invoice_item.push(itemcart)
+    closeModal()
+}
+
+const removeItemCart = (id, i) => {
+    form.value.invoice_item.splice(i, 1)
+    if (id != undefined) {
+        axios.get(`/api/CartItems/delete_invoice_item/${id}`);
+    }
+}
+
+const onUpdate = async (id) => {
+
+    if (form.value.invoice_item.length >= 1) {
+        console.log(JSON.stringify(form.value.invoice_item));
+
+        let subtotal = SubTotal();
+        let total = Total();
+
+        // Prepare the data as a JSON object
+        const payload = {
+            invoice_item: form.value.invoice_item,
+            customer_id: form.value.customer_id,
+            date: form.value.date,
+            due_date: form.value.due_date,
+            number: form.value.number,
+            reference: form.value.reference,
+            discount: form.value.discount,
+            subtotal: subtotal,
+            total: total
+        };
+
+        form.value.invoice_item = [];
+
+        // Make an axios POST request with JSON payload
+        axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            // Handle the success response
+            console.log('Update successful:', response.data);
+            router.push('/')  // Uncomment if you want to navigate after update
+        })
+        .catch(error => {
+            // Handle the error response
+            console.error('Error updating invoice:', error.response.data);
+        });
+    }
+}
+
+</script>
+<template>
+    <!--==================== Form EDIT INVOICE ====================-->
+    <div class="container">
+        <div class="invoices">
+            <div class="table invoice">
+                <!-- <div class="logo">..</div> -->
+                <div class="invoice__header--title">
+                    <p style="margin-top:15px;margin-left:15px;">
+                        <b>
+                            <label style="font-size: 20px;" @click="onBack()">INDEX</label>
+                            <label style="font-size: 16px;"> / </label>
+                            <label style="font-size: 20px;" @click="onReload()">Edit</label>
+                        </b>
+                    </p>
+                    <p class="invoice__header--title-1">
+                        <img :src="logoImage" alt="Logo" style="width: 200px;">
+                    </p>
+                    <p></p>
+                </div>
+                <div class="invoice__header--item">
+                    <div>
+                        <p style="margin-top: 10px;">
+                            <b>Invoice :: </b>
+                            <input type="text" class="input" name="number" id="number" v-model="form.number"  />
+                        </p>
+                        <p style="margin-top:5px;" >
+                            <b>Name :: </b>
+                            <select name="firstname" id="firstname" class="input" v-model="form.customer_id">
+                                <option disabled></option>
+                                <option :value="customer.id" v-for="customer in customers" :key="customer.id">
+                                    {{form.customer.firstname}}
+                                </option>
+                            </select>
+                        </p>
+                        <p style="margin-top:5px;" v-if="form.customer">
+                            <b>Email :: </b>
+                            <input type="text" class="input" name="email" id="email" v-model="form.customer.email">
+                        </p>
+                        <p style="margin-top:5px;" v-if="form.customer">
+                            <b>Address :: </b>
+                            <textarea name="address" id="address" cols="50" rows="3"
+                                v-model="form.customer.address"></textarea>
+                        </p>
+                    </div>
+                    <div>
+                        <p style="margin-top: 10px;">
+                            <b>Date</b>
+                            <input type="date" class="input" name="date" id="date" v-model="form.date">
+                        </p>
+                        <p style="margin-top: 10px;">
+                            <b>Due Date</b>
+                            <input type="date" class="input" name="due_date" id="due_date" v-model="form.due_date">
+                        </p>
+                        <p style="margin-top: 10px;">
+                            <b>Reference</b>
+                            <textarea name="reference" id="reference" cols="50" rows="6"
+                                v-model="form.reference"></textarea>
+                        </p>
+                    </div>
+                </div>
+                <div style="margin-left: 35px; padding: 0px 0px !important;">
+                    <a class="button" @click="openModal()">
+                        <span>
+                            add product
+                        </span>
+                    </a>
+                </div>
+                <div class="table py1">
+                    <div class="table--heading2">
+                        <p>ID Item Description</p>
+                        <p>Unit Price</p>
+                        <p>Qty</p>
+                        <p style="text-align: center;">Total</p>
+                        <p style="text-align: center;">#</p>
+                    </div>
+                    <div class="table--items2" v-for="(itemcart, i) in form.invoice_item" :key="itemcart.id" >
+                        <p v-if="itemcart.product">{{ itemcart.product.id }} {{ itemcart.product.description }}</p>
+                        <p v-else> {{ itemcart.id }} {{ itemcart.description }}</p>
+                        <p><input type="text" class="input" v-model="itemcart.unit_price"  /></p>
+                        <p><input type="text" class="input" v-model="itemcart.quantity"></p>
+                        <p style="text-align: center; font-weight: bold;">$
+                            {{ itemcart.unit_price * itemcart.quantity }}
+                        </p>
+                        <p style="text-align: center; font-weight: bold; color: red; font-size: 18px;cursor: pointer;" :value="i+1"
+                        @click="removeItemCart(itemcart.id, i)">
+                            &times;
+                        </p>
+                    </div>
+                </div>
+                <div class="invoice__total">
+                    <div>
+                        <div class="grand__total">
+                            <div class="grand__total--items">
+                                <p style="text-align: center;">Grand Total</p>
+                                <span style="text-align: center;">{{ Total() }}</span>
+                                <span style="text-align: center;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-right: 60px;">
+                        <div class="invoice__subtotal--item1">
+                            <p style="font-weight: 700;">Discount</p>
+                            <span><input style="text-align: center;" size="4" type="text" class="input"
+                                v-model="form.discount"></span>
+                            <span style="text-align: center; font-weight: 700;"> % </span>
+                        </div>
+                        <div class="invoice__subtotal--item1">
+                            <p style="font-weight: 700;">Sub Total</p>
+                            <span style="text-align: center; font-weight: 700;">{{ SubTotal() }}</span>
+                            <span style="text-align: center; font-weight: 700;">$</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cart-footer-btn-action">
+                    <div style="float: right;">
+                        <button class="button" @click="onUpdate(form.id)">
+                            <span>Save{{ form.id }}</span>
+                        </button>
+                        <button class="button" @click="onReset()">
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- =============  Start Modal Items Products ============= -->
+        <div class="modal main__modal " :class="{ show: showModal }">
+            <div class="modal__content">
+                <span class="modal__close btn__close--modal" @click="closeModal()">×</span>
+                <h3 class="modal__title">Add Item</h3>
+                <hr><br>
+                <div class="modal__items">
+                    <ul style="list-style:none">
+                        <li v-for="(item, i) in listProducts" :key="item.id"
+                            style="display:grid;grid-template-columns: 30px 350px 15px; align-items: center; padding-bottom: 5px;">
+                            <p>{{ item.id }} {{ i+1 }}</p>
+                            <p> {{ item.item_code }} {{ item.description }}</p>
+                            <button @click="addCart(item)"
+                                style="border:1px solid; width: 35px; height: 35; cursor: pointer;">
+                                +
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <br>
+                <hr>
+                <div class="model__footer">
+                    <button class="btn btn-light mr-2 btn__close--modal" @click="closeModal()">
+                        Cancel
+                    </button>
+                    <button class="btn btn-light btn__close--modal ">Save</button>
+                </div>
+            </div>
+        </div>
+        <!-- =============  Stop Modal Items Products ============= -->
+    </div>
+</template>
