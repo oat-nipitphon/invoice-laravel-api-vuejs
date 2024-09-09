@@ -151,19 +151,16 @@ const onUpdate = async (id) => {
 
         form.value.invoice_item = [];
 
-        // Make an axios POST request with JSON payload
         axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
             headers: {
                 'Content-Type': 'application/json'
             }
         })
         .then(response => {
-            // Handle the success response
             console.log('Update successful:', response.data);
-            router.push('/')  // Uncomment if you want to navigate after update
+            router.push('/')
         })
         .catch(error => {
-            // Handle the error response
             console.error('Error updating invoice:', error.response.data);
         });
     }

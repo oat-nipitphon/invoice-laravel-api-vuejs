@@ -1,49 +1,64 @@
 <script setup>
 
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
+    import { onMounted, ref } from 'vue'
+    import { useRouter } from 'vue-router';
 
-let invoices = ref([])
-let searchInvoice = ref("")
-let timeout = ref(null)
-
-// const router = useRouter()
-
-onMounted(async () => {
-    getInvoices()
-})
-
-
-const getInvoices = async () => {
-    try {
-        let response = await axios.get("/api/get_all_invoice")
-        console.log('response', response)
-        invoices.value = response.data.invoices
-    } catch (error) {
-        console.error('Error fetching invoices:', error);
+    const router = useRouter()
+    const onShow = (id) => {
+        router.push('/invoice/show/'+id);
     }
-}
 
-const search = async () => {
-    if (searchInvoice.value.trim() !== "") {
+    const onNew = () => {
+        router.push('/invoice/new');
+    }
+
+    const onEdit = (id) => {
+        router.push(`/invoice/edit/${id}`);
+    }
+
+    const onDelete = async (id) => {
+        await axios.delete(`/api/delete_invoice/${id}`);
+        location.reload()
+    }
+
+    let invoices = ref([])
+    let searchInvoice = ref("")
+    let timeout = ref(null)
+
+    onMounted(async () => {
+        getInvoices()
+    })
+
+    const getInvoices = async () => {
         try {
-            let response = await axios.get("/api/search_invoice?id=" + searchInvoice.value);
-            console.log('response', response.data.invoices);
+            let response = await axios.get("/api/get_invoices")
+            console.log('response', response)
             invoices.value = response.data.invoices
         } catch (error) {
-            console.error('Error fetching search invoices', error);
+            console.error('Error fetching invoices:', error);
         }
-    } else {
-        getInvoices();
     }
-}
 
-const debouncedSearch = () => {
-    if (timeout.value);
-    timeout.value = setTimeout(() => {
-        search();
-    }, 300);
-}
+    const search = async () => {
+        if (searchInvoice.value.trim() !== "") {
+            try {
+                let response = await axios.get("/api/search_invoices?id=" + searchInvoice.value);
+                console.log('response', response.data.invoices);
+                invoices.value = response.data.invoices
+            } catch (error) {
+                console.error('Error fetching search invoices', error);
+            }
+        } else {
+            getInvoices();
+        }
+    }
+
+    const debouncedSearch = () => {
+        if (timeout.value);
+        timeout.value = setTimeout(() => {
+            search();
+        }, 300);
+    }
 
 </script>
 <template>
@@ -55,10 +70,14 @@ const debouncedSearch = () => {
                     <h2 class="invoice__title">Invoices</h2>
                 </div>
                 <div>
-                    <a class="btn btn-secondary">
-                        <!-- New Invoice -->
-                        <router-link to="/invoice/new">New Invoice</router-link>
+                    <a class="btn btn-sm button" @click="onNew()">
+                        <span>
+                            New
+                        </span>
                     </a>
+                </div>
+                <div>
+                    <router-link to="/cart_item">CartItem</router-link>
                 </div>
             </div>
 
@@ -103,12 +122,10 @@ const debouncedSearch = () => {
                     <p>Customer</p>
                     <p>Due Date</p>
                     <p>Total</p>
+                    <p>#</p>
                 </div>
-
-                <!-- item 1 -->
-                <!-- <div v-if="invoices.length > 0"> -->
-                <div class="table--items" v-for="item in invoices" :key="item.id">
-                    <a href="#" class="table--items--transactionId">#{{ item.id }}</a>
+                <div class="table--items" v-for="(item, i) in invoices" :key="item.id">
+                    <p>{{ i+1 }}</p>
                     <p>{{ item.date }}</p>
                     <p>{{ item.number }}</p>
                     <p v-if="item.customer">
@@ -119,11 +136,21 @@ const debouncedSearch = () => {
                     </p>
                     <p>{{ item.due_date }}</p>
                     <p> $ {{ item.total }}</p>
+                    <div class="dropdown">
+                        <button class="dropbtn">Action</button>
+                        <div class="dropdown-content">
+                            <a @click="onShow(item.id)" class="">
+                                <span>Show</span>
+                            </a>
+                            <a @click="onEdit(item.id)" class="">
+                                <span>Edit</span>
+                            </a>
+                            <a @click="onDelete(item.id)" class="">
+                                <span>Delete</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <!-- </div> -->
-                <!-- <div v-else>
-                    <p>Invoice not found</p>
-                </div> -->
             </div>
 
         </div>
