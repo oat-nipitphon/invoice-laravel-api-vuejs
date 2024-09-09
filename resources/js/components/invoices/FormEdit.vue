@@ -55,7 +55,6 @@ onMounted(async () => {
 const getInvoiceFormEdit = async () => {
     try {
         let response = await axios.get(`/api/show_get_invoice/${props.id}`);
-        console.log(response);
         form.value = response.data.invoice
     } catch (error) {
         console.log('Error props id get invoice :: ', response);
@@ -65,7 +64,6 @@ const getInvoiceFormEdit = async () => {
 const getCustomers = async () => {
     try {
         let response = await axios.get('/api/get_customers');
-        console.log('Customer respones', response);
         customers.value = response.data.customers
     } catch (error) {
         console.error('Error getCustomers :', error);
@@ -75,7 +73,6 @@ const getCustomers = async () => {
 const getProducts = async () => {
     try {
         let responese = await axios.get('/api/get_products');
-        console.log('Get Products :: ', responese);
         listProducts.value = responese.data.products
     } catch (error) {
         console.error('Error Get Products :: ', error);
@@ -121,17 +118,27 @@ const addCart = (item) => {
     closeModal()
 }
 
-const removeItemCart = (id, i) => {
-    form.value.invoice_item.splice(i, 1)
-    if (id) {
-        console.log(`Delete Cart Item ID :: ${id}`);
-        axios.get(`/api/delete_invoice_item/cart_item/${id}`);
+const removeItemCart = async (id, i) => {
+
+    if(Array.isArray(form.value.invoice_item) && i >= 0 && i < form.value.invoice_item.length){
+
+        form.value.invoice_item.splice(i, 1)
+        if (id != undefined) {
+            const response = await axios.get(`/api/delete_invoice_item/cart_item/${id}`);
+            console.log(`Success Delete Cart Item ID :: ${id}`);
+        }else{
+            console.error(`Error Delete Cart item ID ::${id}:`, form.value.invoice_item);
+        }
+    }else{
+        console.log('Error Form Invoice Item :: ', form.value.invoice_item);
     }
+
 }
 
 const onUpdate = async (id) => {
 
-    if (form.value.invoice_item.length >= 1) {
+    if (form.value.invoice_item != null) {
+
         console.log(JSON.stringify(form.value.invoice_item));
 
         let subtotal = SubTotal();
@@ -198,7 +205,7 @@ const onUpdate = async (id) => {
                             <select name="firstname" id="firstname" class="input" v-model="form.customer_id">
                                 <option disabled></option>
                                 <option :value="customer.id" v-for="customer in customers" :key="customer.id">
-                                    {{form.customer.firstname}}
+                                    {{form.customer.firstname}}  {{form.customer.lastname}}
                                 </option>
                             </select>
                         </p>

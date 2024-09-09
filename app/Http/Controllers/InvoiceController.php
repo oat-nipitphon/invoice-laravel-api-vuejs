@@ -122,11 +122,8 @@ class InvoiceController extends Controller
     }
 
     public function deleteInvoiceItemCartItem($id) {
-        // dd($id);
-        $invoice_item = InvoiceItem::find($id);
-        // return $invoice_item;
+        $invoice_item = InvoiceItem::where('id', $id)->first();
         if ($invoice_item) {
-            // dd($invoice_item);
             $invoice_item->delete();
             return response()->json([
                 'status' => 200,
@@ -145,6 +142,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::with('customer', 'InvoiceItem.product')->where('id', $id)->first();
         $invoice_items = $request->input('invoice_item');
 
+
         $invoice->sub_total = $request->subtotal;
         $invoice->total = $request->total;
         $invoice->customer_id = $request->customer_id;
@@ -153,10 +151,9 @@ class InvoiceController extends Controller
         $invoice->due_date = $request->due_date;
         $invoice->discount = $request->discount;
         $invoice->reference = $request->reference;
-        $invoice->update($request->all());
+        $invoice->save();
 
-        // $invoice->cartItemDeleteInvoiceItem()->delete();
-
+        $invoice = $this->deleteInvoiceItemCartItem($id);
 
         if (!is_array($invoice_items)) {
             return response()->json([
