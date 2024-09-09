@@ -167,7 +167,7 @@ const onReset = () => {
                         <select name="" id="" class="input" v-model="customer_id">
                             <option disabled>Select Customer</option>
                             <option :value="customer.id" v-for="customer in customers" :key="customer.id">
-                                {{ customer.firstname }}
+                                {{ customer.firstname }} {{ customer.lastname }}
                             </option>
                         </select>
                     </div>

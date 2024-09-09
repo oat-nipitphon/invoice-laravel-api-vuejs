@@ -8,7 +8,7 @@ use App\Models\Customer;
 class CustomerController extends Controller
 {
     public function getCustomers () {
-        $customers = Customer::orderBy('id', 'DESC')->get();
+        $customers = Customer::orderBy('id', 'ASC')->get();
 
         return response()->json([
             'customers' => $customers

@@ -121,9 +121,12 @@ class InvoiceController extends Controller
 
     }
 
-    public function cartItemDeleteInvoiceItem($id) {
+    public function deleteInvoiceItemCartItem($id) {
+        // dd($id);
         $invoice_item = InvoiceItem::find($id);
+        // return $invoice_item;
         if ($invoice_item) {
+            // dd($invoice_item);
             $invoice_item->delete();
             return response()->json([
                 'status' => 200,
