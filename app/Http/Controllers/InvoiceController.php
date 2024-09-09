@@ -76,10 +76,7 @@ class InvoiceController extends Controller
                 'unit_price' => 0,
                 'quantity' => 1
             ],
-
         ];
-        // dd($formData['number']);
-
 
         return response()->json([
             'formData' => $formData,
@@ -124,64 +121,82 @@ class InvoiceController extends Controller
 
     }
 
-    public function cartItemDeleteInvoiceItem($id){
-        $invoice_item = InvoiceItem::findOrFail($id);
-        $invoice_item->delete();
-        return response()->json([
-            'status' => 200,
-            'megess' => 'Insert Invoice and Invoiceitem Success.'
-        ],200);
+    public function cartItemDeleteInvoiceItem($id) {
+        $invoice_item = InvoiceItem::find($id);
+        if ($invoice_item) {
+            $invoice_item->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => 'Invoice item deleted successfully.'
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Invoice item not found.'
+            ], 404);
+        }
     }
 
     public function updateSqlEditInvoice(Request $request, $id){
 
-        // ตรวจสอบว่าคุณได้ query ข้อมูล invoice ถูกต้อง
-        $invoice = Invoice::where('id', $id)->first();
+        $invoice = Invoice::with('customer', 'InvoiceItem.product')->where('id', $id)->first();
+        $invoice_items = $request->input('invoice_item');
 
-        if(isset($invoice)){
-            // ตรวจสอบการอัปเดตข้อมูล
-            $invoice->update([
-                'sub_total' => $request->subtotal,
-                'total' => $request->total,
-                'customer_id' => $request->customer_id, // ระวังการอ้างอิง key
-                'number' => $request->number,
-                'date' => $request->date,
-                'due_date' => $request->due_date,
-                'discount' => $request->discount,
-                'reference' => $request->reference,
-            ]);
-        }
+        $invoice->sub_total = $request->subtotal;
+        $invoice->total = $request->total;
+        $invoice->customer_id = $request->customer_id;
+        $invoice->number = $request->number;
+        $invoice->date = $request->date;
+        $invoice->due_date = $request->due_date;
+        $invoice->discount = $request->discount;
+        $invoice->reference = $request->reference;
+        $invoice->update($request->all());
 
-        // ตรวจสอบว่า $invoice_item ถูกส่งมาและเป็น array หรือ object
-        $invoice_item = json_decode($request->input('invoice_item'), true);
-        if($invoice_item){
-            // ลบรายการเดิม
-            $invoice->cartItemDeleteInvoiceItem()->delete();
-            foreach($invoice_item as $item){
-                // ตรวจสอบข้อมูลที่ถูกต้องก่อน insert
-                InvoiceItem::create([
-                    'product_id' => $item['product_id'],
-                    'invoice_id' => $invoice->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                ]);
+        // $invoice->cartItemDeleteInvoiceItem()->delete();
+
+
+        if (!is_array($invoice_items)) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Invoice items should be an array.'
+            ], 400);
+        }else{
+            foreach ($invoice_items as $item) {
+                $itemdata['product_id'] = $item['product_id'];
+                $itemdata['invoice_id'] = $id;
+                $itemdata['quantity'] = $item['quantity'];
+                $itemdata['unit_price'] = $item['unit_price'];
+                InvoiceItem::create($itemdata);
             }
-        }
-
-        return response()->json(['status' => 200, 'message' => 'Update Success'], 200);
-    }
-
-    public function deleteInvoice($id){
-        $invoice = Invoice::find($id);
-        if (isset($invoice)) {
-            InvoiceItem::where('invoice_id', $id)->delete();
-            $invoice->delete();
         }
 
         return response()->json([
             'status' => 200,
-            'megess' => 'Delete Invoice and Invoiceitem Success.'
-        ],200);
+            'message' => 'Update Invoice and InvoiceItem Success.',
+            'response' => $invoice
+        ], 200);
+
+    }
+
+    public function deleteInvoice($id){
+        try {
+            $invoice = Invoice::find($id);
+            if (isset($invoice)) {
+                InvoiceItem::where('invoice_id', $id)->delete();
+                $invoice->delete();
+            }
+
+            return response()->json([
+                'status' => 200,
+                'megess' => 'Delete Invoice and Invoiceitem Success.'
+            ],200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'error' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
 }

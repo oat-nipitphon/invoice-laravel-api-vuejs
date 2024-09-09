@@ -111,7 +111,7 @@ const Total = () => {
 
 const addCart = (item) => {
     const itemcart = {
-        product_id: item.product_id,
+        product_id: item.id,
         item_code: item.item_code,
         description: item.description,
         unit_price: item.unit_price,
@@ -128,60 +128,71 @@ const removeItemCart = (id, i) => {
     }
 }
 
-// const onUpdate = async (id) => {
-//     try {
-//         if(form.value.invoice_item.length>=1){
-//             // console.log(JSON.stringify(form.value.invoice_item));
-//             let subtotal = 0
-//             subtotal = SubTotal()
+const onUpdate = async (id) => {
 
-//             let total = 0
-//             total = Total()
+    if (form.value.invoice_item.length >= 1) {
+        console.log(JSON.stringify(form.value.invoice_item));
 
-//             const formData = new FormData()
-//             formData.append('invoice_item', JSON.stringify(form.value.invoice_item))
-//             formData.append('customer_id', form.value.customer_id)
-//             formData.append('date', form.value.date)
-//             formData.append('due_date', form.value.due_date)
-//             formData.append('number', form.value.number)
-//             formData.append('reference', form.value.reference)
-//             formData.append('discount', form.value.discount)
-//             formData.append('subtotal', subtotal)
-//             formData.append('total', total)
-//             // formData.append('terms_and_conditions', form.value.terms_and_conditions)
+        let subtotal = SubTotal();
+        let total = Total();
 
-//             axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData)
-//             form.value.invoice_item = []
-//             router.push('/')
-//         }
-//     } catch (error) {
-//         console.log('Error Edit :: ', error);
-//     }
-// }
+        // Prepare the data as a JSON object
+        const payload = {
+            invoice_item: form.value.invoice_item,
+            customer_id: form.value.customer_id,
+            date: form.value.date,
+            due_date: form.value.due_date,
+            number: form.value.number,
+            reference: form.value.reference,
+            discount: form.value.discount,
+            subtotal: subtotal,
+            total: total
+        };
 
-const onUpdate = async () => {
-    try {
-        if(form.value.invoice_item.length > 0){
-            const formData = new FormData();
-            formData.append('invoice_item', JSON.stringify(form.value.invoice_item));
-            formData.append('customer_id', form.value.customer_id);
-            formData.append('date', form.value.date);
-            formData.append('due_date', form.value.due_date);
-            formData.append('number', form.value.number);
-            formData.append('reference', form.value.reference);
-            formData.append('discount', form.value.discount);
-            formData.append('subtotal', SubTotal());
-            formData.append('total', Total());
+        form.value.invoice_item = [];
 
-            axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData);
-            console.log(response.data);
-            location.reload();
-        } else {
-            console.error('No items in the invoice');
-        }
-    } catch (error) {
-        console.log('Error during update:', error);
+        // Make an axios POST request with JSON payload
+        axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            // Handle the success response
+            console.log('Update successful:', response.data);
+            router.push('/')  // Uncomment if you want to navigate after update
+        })
+        .catch(error => {
+            // Handle the error response
+            console.error('Error updating invoice:', error.response.data);
+        });
     }
+
+
+        // if(form.value.invoice_item.length>=1){
+        //     console.log(JSON.stringify(form.value.invoice_item));
+        //     let subtotal = 0
+        //     subtotal = SubTotal()
+
+        //     let total = 0
+        //     total = Total()
+
+        //     const formData = new FormData()
+        //     formData.append('invoice_item', JSON.stringify(form.value.invoice_item))
+        //     formData.append('customer_id', form.value.customer_id)
+        //     formData.append('date', form.value.date)
+        //     formData.append('due_date', form.value.due_date)
+        //     formData.append('number', form.value.number)
+        //     formData.append('reference', form.value.reference)
+        //     formData.append('discount', form.value.discount)
+        //     formData.append('subtotal', subtotal)
+        //     formData.append('total', total)
+        //     // formData.append('terms_and_conditions', form.value.terms_and_conditions)
+
+        //     form.value.invoice_item = []
+        //     axios.post(`/api/update_sql_edit_invoice/${form.value.id}`, formData)
+        //     // router.push('/')
+        // }
 }
 
 </script>
@@ -208,7 +219,7 @@ const onUpdate = async () => {
                     <div>
                         <p style="margin-top: 10px;">
                             <b>Invoice :: </b>
-                            <input type="text" class="input" name="number" id="number" v-model="form.number" readonly />
+                            <input type="text" class="input" name="number" id="number" v-model="form.number"  />
                         </p>
                         <p style="margin-top:5px;" >
                             <b>Name :: </b>
@@ -261,9 +272,9 @@ const onUpdate = async () => {
                         <p style="text-align: center;">#</p>
                     </div>
                     <div class="table--items2" v-for="(itemcart, i) in form.invoice_item" :key="itemcart.id" >
-                        <p v-if="itemcart.product">{{ itemcart.product.item_code }}{{ itemcart.product.description }}</p>
-                        <p v-else> {{ itemcart.item_code }}{{ itemcart.description }}</p>
-                        <p><input type="text" class="input" v-model="itemcart.unit_price" readonly /></p>
+                        <p v-if="itemcart.product">{{ itemcart.product.id }} {{ itemcart.product.description }}</p>
+                        <p v-else> {{ itemcart.id }} {{ itemcart.description }}</p>
+                        <p><input type="text" class="input" v-model="itemcart.unit_price"  /></p>
                         <p><input type="text" class="input" v-model="itemcart.quantity"></p>
                         <p style="text-align: center; font-weight: bold;">$
                             {{ itemcart.unit_price * itemcart.quantity }}
@@ -301,7 +312,7 @@ const onUpdate = async () => {
                 <div class="cart-footer-btn-action">
                     <div style="float: right;">
                         <button class="button" @click="onUpdate(form.id)">
-                            <span>Save</span>
+                            <span>Save{{ form.id }}</span>
                         </button>
                         <button class="button" @click="onReset()">
                             <span>Reset</span>
@@ -320,8 +331,8 @@ const onUpdate = async () => {
                     <ul style="list-style:none">
                         <li v-for="(item, i) in listProducts" :key="item.id"
                             style="display:grid;grid-template-columns: 30px 350px 15px; align-items: center; padding-bottom: 5px;">
-                            <p>{{ i + 1 }}</p>
-                            <a>{{ item.item_code }} {{ item.description }}</a>
+                            <p>{{ item.id }} {{ i+1 }}</p>
+                            <p> {{ item.item_code }} {{ item.description }}</p>
                             <button @click="addCart(item)"
                                 style="border:1px solid; width: 35px; height: 35; cursor: pointer;">
                                 +

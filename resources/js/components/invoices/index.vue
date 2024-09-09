@@ -76,6 +76,9 @@
                         </span>
                     </a>
                 </div>
+                <div>
+                    <router-link to="/cart_item">CartItem</router-link>
+                </div>
             </div>
 
             <div class="table card__content">

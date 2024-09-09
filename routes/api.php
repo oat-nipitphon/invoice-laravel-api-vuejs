@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartItemController;
 
 
 /*
@@ -40,3 +41,5 @@ Route::get('/get_customers', [CustomerController::class, 'getCustomers']);
 // Product
 Route::get('/get_products', [ProductController::class, 'getProducts']);
 
+Route::get('/CartItems', [CartItemController::class, 'cartItems']);
+Route::match(['get', 'post'],'/CartItems/Insert', [CartItemController::class, 'cartItemsInsert']);

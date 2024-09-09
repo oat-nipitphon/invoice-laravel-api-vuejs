@@ -4,6 +4,7 @@ import invoiceIndex from '../components/invoices/index.vue'
 import New from '../components/invoices/New.vue'
 import ShowInvoice from '../components/invoices/ShowInvoice.vue'
 import FormEditInvoice from '../components/invoices/FormEdit.vue'
+import CartItems from '../components/CartItems.vue'
 
 const routes = [
     {
@@ -27,7 +28,12 @@ const routes = [
         path:'/invoice/edit/:id',
         component: FormEditInvoice,
         props: true
+    },
+    {
+        path:'/cart_item',
+        component: CartItems
     }
+
 
 
 ]
