@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
 import router from '../../router/index.js'
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 const showModal = ref(false)
 const hideModal = ref(true)
@@ -36,10 +38,21 @@ const indexForm = async () => {
 const getCustomers = async () => {
     try {
         let response = await axios.get('/api/get_customers');
-        console.log('Customer respones', response);
+        // console.log('Customer respones', response);
         customers.value = response.data.customers
     } catch (error) {
         console.error('Error getCustomers :', error);
+    }
+}
+
+
+const getProducts = async () => {
+    try {
+        let responese = await axios.get('/api/get_products');
+        // console.log('Get Products :: ', responese);
+        listProducts.value = responese.data.products
+    } catch (error) {
+        console.error('Error Get Products :: ', error);
     }
 }
 
@@ -60,18 +73,37 @@ const addCart = (item) => {
 }
 
 const removeitem = (i) => {
-    listCart.value.splice(i, 1)
+    console.log(i);
+    if(i != undefined){
+        Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: "Deleted!",
+                text: "Your file has been deleted.",
+                icon: "success"
+            }).then(() => {
+                console.log('isConfirmed');
+                listCart.value.splice(i, 1)
+                // router.push('/'); // นำทางไปยังหน้าแรก
+            });
+        }
+        console.log('NotisConfirmed');
+    });
+    }else{
+
+    }
+
 }
 
-const getProducts = async () => {
-    try {
-        let responese = await axios.get('/api/get_products');
-        console.log('Get Products :: ', responese);
-        listProducts.value = responese.data.products
-    } catch (error) {
-        console.error('Error Get Products :: ', error);
-    }
-}
 
 const openModal = () => {
     showModal.value = !showModal.value
@@ -186,19 +218,19 @@ const onReset = () => {
                 <div class="table">
                     <div class="table--heading2">
                         <div style="padding: 0px 0px !important;">
-                            <a class="button" @click="openModal()">
-                                <span>
+                            <button class="btn btn-success_addproduct btn_animation" @click="openModal()">
+                                <span class="btn_addproduct">
                                     add product
                                 </span>
-                            </a>
+                            </button>
                         </div>
                         <p>Unit Price</p>
                         <p>Qty</p>
                         <p>Total</p>
                         <p> # </p>
                     </div>
-                    <div class="table--items2" v-for="(itemcart) in listCart" :key="itemcart.id">
-                        <p> # {{ itemcart.item_code }} {{ itemcart.description }}</p>
+                    <div class="table--items2" v-for="(itemcart, i) in listCart" :key="itemcart.id">
+                        <p> {{ i+1 }} {{ itemcart.item_code }} {{ itemcart.description }}</p>
                         <p>
                             <input type="text" class="input" v-model="itemcart.unit_price" readonly />
                         </p>
@@ -209,7 +241,7 @@ const onReset = () => {
                             $ {{ (itemcart.quantity) * (itemcart.unit_price) }}
                         </p>
                         <p v-else></p>
-                        <p style="color: red; font-size: 18px;cursor: pointer;" @click="removeitem()">
+                        <p style="color: red; font-size: 18px;cursor: pointer;" @click="removeitem(i)">
                             &times;
                         </p>
                     </div>
@@ -243,14 +275,14 @@ const onReset = () => {
 
                     </div>
                     <div>
-                        <a class="btn btn-sm button" @click="onSave()">
-                            <span>
-                                Save
+                        <a class="button_save btn_animation" @click="onSave()">
+                            <span class="btn_save">
+                                บันทึก
                             </span>
                         </a>
-                        <a class="btn btn-sm button" @click="onReset()">
-                            <span>
-                                Reset
+                        <a class="button btn-danger btn_animation" @click="onBack()">
+                            <span class="btn_back">
+                                ยกเลิก
                             </span>
                         </a>
                     </div>

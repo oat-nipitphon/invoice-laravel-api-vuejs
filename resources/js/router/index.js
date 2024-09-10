@@ -5,11 +5,16 @@ import New from '../components/invoices/New.vue'
 import ShowInvoice from '../components/invoices/ShowInvoice.vue'
 import FormEditInvoice from '../components/invoices/FormEdit.vue'
 import CartItems from '../components/CartItems.vue'
+import SwalConfigCancel from '../components/sweetalert2/SwalConfigCancel.vue'
 
 const routes = [
     {
         path:'/:pathMatch(.*)*',
         component: notFound
+    },
+    {
+        path:'/sweetalert/test',
+        component:SwalConfigCancel
     },
     {
         path:'/',

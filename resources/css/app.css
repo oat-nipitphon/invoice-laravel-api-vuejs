@@ -62,34 +62,75 @@ body {
     background-color: #3c973f;
   }
 
-a.button {
+/* button {
     width: 150px !important;
     padding: 5px !important;
-}
-.button {
+    font-size: 16px !important;
+} */
+a.button {
     display: inline-block;
-    border-radius: 4px;
+    border-radius: 100px;
     border: none;
     color: #FFFFFF;
     text-align: center;
-    font-size: 14px;
-    padding: 20px;
-    width: 300px;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    width: 150px;
     transition: all 0.5s;
     cursor: pointer;
     margin: 5px;
-    background-color: #f81e1e;
+    /* background-color: #f81e1e; */
 }
 
+.btn-primary{
+    width: 120px;
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+.btn-secondary{
+    width: 120px;
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+.btn-success{
+    width: 120px;
+    color: #fff;
+    background-color: #198754;
+    border-color: #198754;
+}
 
-.button span {
+.btn-warning{
+    width: 120px;
+    color: #000;
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+.btn-danger{
+    width: 120px;
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-link{
+    width: 120px;
+    display: inline-block;
+    box-sizing: border-box;
+    font-weight: 400;
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.btn_animation span {
     cursor: pointer;
     display: inline-block;
     position: relative;
     transition: 0.5s;
 }
 
-.button span:after {
+.btn_animation span:after {
     content: '\00bb';
     position: absolute;
     opacity: 0;
@@ -98,13 +139,71 @@ a.button {
     transition: 0.5s;
 }
 
-.button:hover span {
+.btn_animation:hover span {
     padding-right: 25px;
 }
 
-.button:hover span:after {
+.btn_animation:hover span:after {
     opacity: 1;
     right: 0;
+}
+
+a.button_new {
+    display: inline-block;
+    border-radius: 50px;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    width: 150px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+span.btn_new{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+a.button_save {
+    display: inline-block;
+    border-radius: 50px;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    width: 150px;
+    transition: all 0.5s;
+    cursor: pointer;
+    margin: 5px;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+span.btn_save{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.btn-success_addproduct{
+    width: 200px;
+    color: #fff;
+    background-color: #198754;
+    border-color: #198754;
+}
+span.btn_addproduct{
+    font-size: 16px;
+    font-weight: bold;
+}
+
+span.btn_back{
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .font-header-pages{

@@ -3,6 +3,7 @@
     import { onMounted, ref } from 'vue'
     import { useRouter } from 'vue-router';
 
+
     const router = useRouter()
     const onShow = (id) => {
         router.push('/invoice/show/'+id);
@@ -69,39 +70,43 @@
                 <div>
                     <h2 class="invoice__title">Invoices</h2>
                 </div>
-                <div>
-                    <a class="btn btn-sm button" @click="onNew()">
-                        <span>
-                            New
-                        </span>
-                    </a>
-                </div>
-                <div>
-                    <router-link to="/cart_item">CartItem</router-link>
-                </div>
             </div>
 
             <div class="table card__content">
                 <div class="table--filter">
-                    <span class="table--filter--collapseBtn ">
-                        <i class="fas fa-ellipsis-h"></i>
-                    </span>
-                    <div class="table--filter--listWrapper">
-                        <ul class="table--filter--list">
-                            <li>
-                                <p class="table--filter--link table--filter--link--active">
-                                    All
-                                </p>
-                            </li>
-                            <li>
-                                <p class="table--filter--link ">
-                                    Paid
-                                </p>
-                            </li>
-                        </ul>
+                    <div class="card__header">
+                        <div class="col-md-6">
+                            <ul class="table--filter--list">
+                                <li>
+                                    <p class="table--filter--link table--filter--link--active">
+                                        All
+                                    </p>
+                                </li>
+                                <li>
+                                    <p class="table--filter--link ">
+                                        Paid
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>
+                                        <router-link to="/sweetalert/test">Sweet-Alert</router-link>
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="card__header-list">
+                                <li>
+                                    <a class="button_new btn_animation" @click="onNew()">
+                                        <span>
+                                            New
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-
                 <div class="table--search">
                     <div class="table--search--wrapper">
                         <select class="table--search--select" name="" id="">

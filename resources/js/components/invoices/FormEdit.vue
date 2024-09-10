@@ -1,8 +1,9 @@
 <script setup>
 import logoImage from '@/../assets/img/logo.png'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
+// import axios from 'axios';
 
 const router = useRouter()
 const onPrint = () => {
@@ -118,14 +119,32 @@ const addCart = (item) => {
     closeModal()
 }
 
-const removeItemCart = async (id, i) => {
+const removeItemCart = (id, i) => {
 
     if(Array.isArray(form.value.invoice_item) && i >= 0 && i < form.value.invoice_item.length){
 
-        form.value.invoice_item.splice(i, 1)
-        if (id != undefined) {
-            const response = await axios.get(`/api/delete_invoice_item/cart_item/${id}`);
-            console.log(`Success Delete Cart Item ID :: ${id}`);
+        if (i != undefined || id != undefined) {
+            Swal.fire({
+                title: "ยืนยันการลบข้อมูล",
+                text: "คุณต้องการที่จะลบข้อมูลนี้ ใช่หรือไม่ ?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "ใช่",
+                cancelButtonText: "ไม่ใช่"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "ลบข้อมูลสำเร็จ!",
+                        text: "Delete Successfully.",
+                        icon: "success"
+                    }).then(() => {
+                        form.value.invoice_item.splice(i, 1)
+                        axios.get(`/api/delete_invoice_item/cart_item/${id}`);
+                    })
+                }
+            })
         }else{
             console.error(`Error Delete Cart item ID ::${id}:`, form.value.invoice_item);
         }
@@ -179,8 +198,26 @@ const onUpdate = async (id) => {
     <!--==================== Form EDIT INVOICE ====================-->
     <div class="container">
         <div class="invoices">
+            <div class="card__header">
+                <div class="col-md-6">
+                    <h2 class="invoice__title">
+                        <p style="font-size: 24px;">Invoice #{{ form.id }}</p>
+                        <p style="font-size: 16px; ">{{ form.created_at }}</p>
+                    </h2>
+                </div>
+                <div class="col-md-6">
+                    <ul class="card__header-list" style="margin-top:15px;">
+                        <li>
+                            <a class="btn btn-danger btn_animation" @click="onBack()">
+                                <span>
+                                    Back
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <div class="table invoice">
-                <!-- <div class="logo">..</div> -->
                 <div class="invoice__header--title">
                     <p style="margin-top:15px;margin-left:15px;">
                         <b>
@@ -236,11 +273,11 @@ const onUpdate = async (id) => {
                     </div>
                 </div>
                 <div style="margin-left: 35px; padding: 0px 0px !important;">
-                    <a class="button" @click="openModal()">
-                        <span>
+                    <button class="btn btn-success_addproduct btn_animation" @click="openModal()">
+                        <span class="btn_addproduct">
                             add product
                         </span>
-                    </a>
+                    </button>
                 </div>
                 <div class="table py1">
                     <div class="table--heading2">
@@ -258,7 +295,7 @@ const onUpdate = async (id) => {
                         <p style="text-align: center; font-weight: bold;">$
                             {{ itemcart.unit_price * itemcart.quantity }}
                         </p>
-                        <p style="text-align: center; font-weight: bold; color: red; font-size: 18px;cursor: pointer;" :value="i+1"
+                        <p style="text-align: center; font-weight: bold; color: red; font-size: 18px;cursor: pointer;"
                         @click="removeItemCart(itemcart.id, i)">
                             &times;
                         </p>
@@ -290,12 +327,12 @@ const onUpdate = async (id) => {
                 </div>
                 <div class="cart-footer-btn-action">
                     <div style="float: right;">
-                        <button class="button" @click="onUpdate(form.id)">
-                            <span>Save{{ form.id }}</span>
-                        </button>
-                        <button class="button" @click="onReset()">
+                        <a class="button btn-primary" @click="onUpdate(form.id)">
+                            <span>Save</span>
+                        </a>
+                        <a class="button btn-danger" @click="onReset()">
                             <span>Reset</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
