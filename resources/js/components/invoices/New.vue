@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
-import router from '../../router/index.js'
+// import router from '../../router/index.js'
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 
 const showModal = ref(false)
 const hideModal = ref(true)
-
+const router = useRouter()
 let form = ref([])
 let customers = ref([])
 let customer_id = ref([])
@@ -68,12 +68,12 @@ const addCart = (item) => {
         listCart.value.push(itemcart)
         closeModal()
     } catch (error) {
-        console.log('error listCart :', $listCart);
+        console.log('error listCart :', listCart);
     }
 }
 
 const removeitem = (i) => {
-    console.log(i);
+    // console.log(i);
     if(i != undefined){
         Swal.fire({
         title: "Are you sure?",

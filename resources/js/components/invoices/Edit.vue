@@ -4,6 +4,8 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import TextInput from '../TextInput.vue';
+// import { Link, useForm, usePage } from '@inertiajs/vue3';
+
 
 const router = useRouter()
 const onPrint = () => {
@@ -42,6 +44,7 @@ const props = defineProps({
     }
 })
 
+
 onMounted(async () => {
     getInvoiceFormEdit()
     getProducts()
@@ -58,7 +61,7 @@ const getInvoiceFormEdit = async () => {
         let response = await axios.get(`/api/show_get_invoice/${props.id}`);
         form.value = response.data.invoice
     } catch (error) {
-        console.log('Error props id get invoice :: ', response);
+        console.log('Error props id get invoice :: ', error);
     }
 }
 
@@ -153,10 +156,7 @@ const removeItemCart = (id, i) => {
         }else{
             console.error(`Error Delete Cart item ID ::${id}:`, form.value.invoice_item);
         }
-    }else{
-        console.log('Error Form Invoice Item :: ', form.value.invoice_item);
     }
-
 }
 
 const onUpdate = async (id) => {
@@ -178,7 +178,8 @@ const onUpdate = async (id) => {
             reference: form.value.reference,
             discount: form.value.discount,
             subtotal: subtotal,
-            total: total
+            total: total,
+            terms_and_conditions: form.value.terms_and_conditions
         };
 
         Swal.fire({
@@ -197,23 +198,16 @@ const onUpdate = async (id) => {
                     text: "คุณต้องการบันทึกใช่หรือไม่.",
                     icon: "success"
                 }).then(() => {
-                    axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
+                    form.value.invoice_item = [];
+                    const respones = axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     })
-                    form.value.invoice_item = [];
-                    const respones = axios.post("/api/createInvoiceConfig", formData)
-                    if(respones.status == 200){
-                        router.push('/')
-                    }else{
-                        console.log('Error Update : ', respones);
-                    }
+                    router.push('/')
                 });
             }
         })
-    }else{
-        console.log('form.value.invoice_item = Null :: ', form.value.invoice_item);
     }
 }
 
@@ -295,20 +289,20 @@ const onUpdate = async (id) => {
                 </div>
                 <div class="table py1">
                     <div class="table--heading2">
-                        <p>ID Item Description</p>
-                        <p>Unit Price</p>
-                        <p>Qty</p>
-                        <p style="text-align: center;">Total</p>
-                        <p style="text-align: center;">#</p>
+                        <p>ชื่อสินค้า</p>
+                        <p>ราคาต่อหน่่วย</p>
+                        <p>จำนวน</p>
+                        <p style="text-align: center;">ราคารวม</p>
+                        <p style="text-align: center;">ลบ</p>
                     </div>
                     <div class="table--items2" v-for="(itemcart, i) in form.invoice_item" :key="itemcart.id" >
-                        <p v-if="itemcart.product">{{ itemcart.product.id }} {{ itemcart.product.description }}</p>
-                        <p v-else> {{ itemcart.id }} {{ itemcart.description }}</p>
-                        <TextInput
-                            type="text"
-                            v-model="itemcart.unit_price"
-                        />
-                        <!-- <p><input type="text" class="input" v-model="itemcart.unit_price"  /></p> -->
+                        <p v-if="itemcart.product">
+                            {{i+1}} {{ itemcart.product.description }}
+                        </p>
+                        <p v-else>
+                            {{ i+1 }}  {{ itemcart.description}}
+                        </p>
+                        <p><input type="text" class="input" v-model="itemcart.unit_price"/></p>
                         <p><input type="text" class="input" v-model="itemcart.quantity"></p>
                         <p style="text-align: center; font-weight: bold;">$
                             {{ itemcart.unit_price * itemcart.quantity }}
@@ -342,8 +336,11 @@ const onUpdate = async (id) => {
                         </div>
                     </div>
                 </div>
-                <div class="cart-footer-btn-action">
-                    <div style="float: right;">
+                <div class="card__footer--btn">
+                    <!-- <div class="col md-6">
+
+                    </div> -->
+                    <div class="">
                         <a class="button_save btn_animation" @click="onUpdate(form.id)">
                             <span>อัพเดท</span>
                         </a>
@@ -365,7 +362,7 @@ const onUpdate = async (id) => {
                         <li v-for="(item, i) in listProducts" :key="item.id"
                             style="display:grid;grid-template-columns: 30px 350px 15px; align-items: center; padding-bottom: 5px;">
                             <p>{{ item.id }} {{ i+1 }}</p>
-                            <p> {{ item.item_code }} {{ item.description }}</p>
+                            <p>{{ item.item_code }} add cart {{ item.description }}</p>
                             <button @click="addCart(item)"
                                 style="border:1px solid; width: 35px; height: 35; cursor: pointer;">
                                 +

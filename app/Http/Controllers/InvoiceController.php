@@ -143,6 +143,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::with('customer', 'InvoiceItem.product')->where('id', $id)->first();
         $invoice_items = $request->input('invoice_item');
 
+        // dd($invoice);
 
         $invoice->sub_total = $request->subtotal;
         $invoice->total = $request->total;
@@ -152,29 +153,42 @@ class InvoiceController extends Controller
         $invoice->due_date = $request->due_date;
         $invoice->discount = $request->discount;
         $invoice->reference = $request->reference;
+        $invoice->terms_and_conditions = $request->terms_and_conditions;
+        $invoice->save();
+
         $invoice = $this->deleteInvoiceItemCartItem($id);
 
-        $invoice->update(all());
-
-        if (!is_array($invoice_items)) {
+        // ถ้า product_id ซ้ำ ให้ update
+        $check_status_product_id = "";
+        if (is_array($invoice_items)) {
+            foreach ($invoice_items as $item) {
+                $check_product_id = InvoiceItem::where('product_id', $item['product_id'])->first();
+                if(isset($check_product_id)){
+                    $check_status_product_id = "Update";
+                    $check_product_id->update([
+                        'quantity' => $item['quantity'],
+                    ]);
+                }else{
+                    $check_status_product_id = "Create";
+                    $check_product_id['product_id'] = $item['product_id'];
+                    $check_product_id['invoice_id'] = $id;
+                    $check_product_id['quantity'] = $item['quantity'];
+                    $check_product_id['unit_price'] = $item['unit_price'];
+                    $check_product_id->save();
+                }
+                // InvoiceItem::where('product_id', $item['product_id'])->updateOrInsert($itemdata);
+            }
+        }else{
             return response()->json([
                 'status' => 400,
                 'message' => 'Invoice items should be an array.'
             ], 400);
-        }else{
-            foreach ($invoice_items as $item) {
-                $itemdata['product_id'] = $item['product_id'];
-                $itemdata['invoice_id'] = $id;
-                $itemdata['quantity'] = $item['quantity'];
-                $itemdata['unit_price'] = $item['unit_price'];
-                InvoiceItem::create($itemdata);
-            }
         }
 
         return response()->json([
             'status' => 200,
-            'message' => 'Update Invoice and InvoiceItem Success.',
-            'response' => $invoice
+            'message' => 'Edit Update Successfully.',
+            'check_status_product_id' => $check_status_product_id
         ], 200);
 
     }
