@@ -123,6 +123,7 @@ class InvoiceController extends Controller
 
     public function deleteInvoiceItemCartItem($id) {
         $invoice_item = InvoiceItem::where('id', $id)->first();
+        // dd($invoice_item);
         if ($invoice_item) {
             $invoice_item->delete();
             return response()->json([
@@ -151,9 +152,9 @@ class InvoiceController extends Controller
         $invoice->due_date = $request->due_date;
         $invoice->discount = $request->discount;
         $invoice->reference = $request->reference;
-        $invoice->save();
-
         $invoice = $this->deleteInvoiceItemCartItem($id);
+
+        $invoice->update(all());
 
         if (!is_array($invoice_items)) {
             return response()->json([

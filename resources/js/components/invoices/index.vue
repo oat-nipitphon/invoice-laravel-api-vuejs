@@ -2,6 +2,7 @@
 
     import { onMounted, ref } from 'vue'
     import { useRouter } from 'vue-router';
+    import Swal from 'sweetalert2';
 
 
     const router = useRouter()
@@ -18,8 +19,28 @@
     }
 
     const onDelete = async (id) => {
-        await axios.delete(`/api/delete_invoice/${id}`);
-        location.reload()
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Deleted!",
+                    text: "Your file has been deleted.",
+                    icon: "success"
+                }).then(() => {
+                    axios.delete(`/api/delete_invoice/${id}`);
+                    location.reload()
+                });
+            }
+        })
+
     }
 
     let invoices = ref([])

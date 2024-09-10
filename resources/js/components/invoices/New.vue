@@ -130,13 +130,12 @@ const Total = () => {
     return SubTotal() - Discount()
 }
 
-const onSave = () => {
+const onSave = async () => {
 
     if (listCart.value.length >= 1) {
 
         let subtotal = 0
         subtotal = SubTotal()
-
         let total = 0
         total = Total()
 
@@ -152,9 +151,28 @@ const onSave = () => {
         formData.append('total', total)
         formData.append('terms_and_conditions', form.value.terms_and_conditions)
 
-        axios.post("/api/createInvoiceConfig", formData)
-        listCart.value = []
-        router.push('/')
+        Swal.fire({
+            title: "ยืนยันการบันทึกข้อมูล!",
+            text: "คุณต้องการบันทึก ใช่หรือไม่ ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "บันทึกข้อมูลสำเร็จ",
+                    text: "คุณต้องการบันทึกใช่หรือไม่.",
+                    icon: "success"
+                }).then(() => {
+                    const respones = axios.post("/api/createInvoiceConfig", formData)
+                    listCart.value = []
+                    router.push('/')
+                });
+            }
+        })
     }
 }
 
@@ -182,7 +200,7 @@ const onReset = () => {
                     <b style="font-size: 16px;">
                         <label style="font-size: 20px;" @click="onBack()">INDEX</label>
                         <label style="font-size: 16px;"> / </label>
-                        <label style="font-size: 20px;" @click="onReload()">From Edit</label>
+                        <label style="font-size: 20px;" @click="onReload()">New</label>
                     </b>
                 </p>
                 <p class="invoice__header--title-1">
@@ -218,11 +236,11 @@ const onReset = () => {
                 <div class="table">
                     <div class="table--heading2">
                         <div style="padding: 0px 0px !important;">
-                            <button class="btn btn-success_addproduct btn_animation" @click="openModal()">
-                                <span class="btn_addproduct">
+                            <a class="button_addproduct btn_animation" @click="openModal()">
+                                <span>
                                     add product
                                 </span>
-                            </button>
+                            </a>
                         </div>
                         <p>Unit Price</p>
                         <p>Qty</p>
@@ -245,7 +263,6 @@ const onReset = () => {
                             &times;
                         </p>
                     </div>
-
                 </div>
                 <div class="table__footer">
                     <div class="document-footer">
@@ -270,19 +287,19 @@ const onReset = () => {
                         </div>
                     </div>
                 </div>
-                <div class="card__footer text-center" style="margin-top: 20px;">
-                    <div>
+                <div class="card__header">
+                    <div class="col md-6">
 
                     </div>
-                    <div>
+                    <div class="col md-6">
                         <a class="button_save btn_animation" @click="onSave()">
-                            <span class="btn_save">
+                            <span>
                                 บันทึก
                             </span>
                         </a>
-                        <a class="button btn-danger btn_animation" @click="onBack()">
-                            <span class="btn_back">
-                                ยกเลิก
+                        <a class="button_back btn_animation" @click="onBack()">
+                            <span>
+                                กลับ
                             </span>
                         </a>
                     </div>

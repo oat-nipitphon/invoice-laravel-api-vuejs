@@ -30,9 +30,9 @@ Route::get('/create_invoice', [InvoiceController::class, 'createInvoice']);
 Route::post('/createInvoiceConfig', [InvoiceController::class, 'createInvoiceConfig']);
 
 Route::get('/show_get_invoice/{id}', [InvoiceController::class, 'showGetInvoice']);
-Route::post('/update_sql_edit_invoice/{id}', [InvoiceController::class, 'updateSqlEditInvoice']);
-
 Route::delete('/delete_invoice/{id}', [InvoiceController::class, 'deleteInvoice']);
+
+Route::post('/update_sql_edit_invoice/{id}', [InvoiceController::class, 'updateSqlEditInvoice']);
 Route::get('/delete_invoice_item/cart_item/{id}', [InvoiceController::class, 'deleteInvoiceItemCartItem']);
 
 // Customer

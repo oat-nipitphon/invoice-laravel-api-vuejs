@@ -67,14 +67,14 @@ const showGetInvoice = async () => {
                 <div class="col-md-6">
                     <ul class="card__header-list" style="margin-top:15px;">
                         <li>
-                            <a class="btn btn-sm button" @click="onPrint()">
+                            <a class="button_print btn_animation" @click="onPrint()">
                                 <span>
                                     Print
                                 </span>
                             </a>
                         </li>
                         <li>
-                            <a class="btn btn-sm button " @click="onBack()">
+                            <a class="btn_animation button_back " @click="onBack()">
                                 <span>
                                     Back
                                 </span>

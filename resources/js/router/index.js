@@ -1,9 +1,9 @@
 import { createRouter,  createWebHistory } from 'vue-router'
 import notFound from '../components/NotFound.vue'
-import invoiceIndex from '../components/invoices/index.vue'
+import Index from '../components/invoices/index.vue'
 import New from '../components/invoices/New.vue'
-import ShowInvoice from '../components/invoices/ShowInvoice.vue'
-import FormEditInvoice from '../components/invoices/FormEdit.vue'
+import Show from '../components/invoices/Show.vue'
+import Edit from '../components/invoices/Edit.vue'
 import CartItems from '../components/CartItems.vue'
 import SwalConfigCancel from '../components/sweetalert2/SwalConfigCancel.vue'
 
@@ -18,7 +18,7 @@ const routes = [
     },
     {
         path:'/',
-        component: invoiceIndex
+        component: Index
     },
     {
         path:'/invoice/new',
@@ -26,12 +26,12 @@ const routes = [
     },
     {
         path:'/invoice/show/:id',
-        component: ShowInvoice,
+        component: Show,
         props: true
     },
     {
         path:'/invoice/edit/:id',
-        component: FormEditInvoice,
+        component: Edit,
         props: true
     },
     {

@@ -3,7 +3,7 @@ import logoImage from '@/../assets/img/logo.png'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
-// import axios from 'axios';
+import TextInput from '../TextInput.vue';
 
 const router = useRouter()
 const onPrint = () => {
@@ -141,7 +141,12 @@ const removeItemCart = (id, i) => {
                         icon: "success"
                     }).then(() => {
                         form.value.invoice_item.splice(i, 1)
-                        axios.get(`/api/delete_invoice_item/cart_item/${id}`);
+                        const respones = axios.get(`/api/delete_invoice_item/cart_item/${id}`);
+                        if(respones.status == 200){
+                            console.log('Delete Successfully.');
+                        }else{
+                            console.log('Error Delete : ', respones);
+                        }
                     })
                 }
             })
@@ -176,20 +181,39 @@ const onUpdate = async (id) => {
             total: total
         };
 
-        form.value.invoice_item = [];
-
-        axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
-            headers: {
-                'Content-Type': 'application/json'
+        Swal.fire({
+            title: "ยืนยันการบันทึกข้อมูล!",
+            text: "คุณต้องการบันทึก ใช่หรือไม่ ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "ยืนยัน",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "บันทึกข้อมูลสำเร็จ",
+                    text: "คุณต้องการบันทึกใช่หรือไม่.",
+                    icon: "success"
+                }).then(() => {
+                    axios.post(`/api/update_sql_edit_invoice/${id}`, payload, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    form.value.invoice_item = [];
+                    const respones = axios.post("/api/createInvoiceConfig", formData)
+                    if(respones.status == 200){
+                        router.push('/')
+                    }else{
+                        console.log('Error Update : ', respones);
+                    }
+                });
             }
         })
-        .then(response => {
-            console.log('Update successful:', response.data);
-            router.push('/')
-        })
-        .catch(error => {
-            console.error('Error updating invoice:', error.response.data);
-        });
+    }else{
+        console.log('form.value.invoice_item = Null :: ', form.value.invoice_item);
     }
 }
 
@@ -198,32 +222,15 @@ const onUpdate = async (id) => {
     <!--==================== Form EDIT INVOICE ====================-->
     <div class="container">
         <div class="invoices">
-            <div class="card__header">
-                <div class="col-md-6">
-                    <h2 class="invoice__title">
-                        <p style="font-size: 24px;">Invoice #{{ form.id }}</p>
-                        <p style="font-size: 16px; ">{{ form.created_at }}</p>
-                    </h2>
-                </div>
-                <div class="col-md-6">
-                    <ul class="card__header-list" style="margin-top:15px;">
-                        <li>
-                            <a class="btn btn-danger btn_animation" @click="onBack()">
-                                <span>
-                                    Back
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
             <div class="table invoice">
                 <div class="invoice__header--title">
-                    <p style="margin-top:15px;margin-left:15px;">
+                    <p style="margin-top:20px;margin-left:20px;">
                         <b>
                             <label style="font-size: 20px;" @click="onBack()">INDEX</label>
                             <label style="font-size: 16px;"> / </label>
                             <label style="font-size: 20px;" @click="onReload()">Edit</label>
+                            <label style="font-size: 16px;"> #</label>
+                            <label style="font-size: 20px;" @click="onShow(form.id)">{{ form.id }}</label>
                         </b>
                     </p>
                     <p class="invoice__header--title-1">
@@ -272,12 +279,19 @@ const onUpdate = async (id) => {
                         </p>
                     </div>
                 </div>
-                <div style="margin-left: 35px; padding: 0px 0px !important;">
-                    <button class="btn btn-success_addproduct btn_animation" @click="openModal()">
-                        <span class="btn_addproduct">
-                            add product
-                        </span>
-                    </button>
+                <div class="card__header">
+                    <div class="col-md-6"></div>
+                    <div class="col-md-6 card__end-list">
+                        <ul class="card__end-list">
+                            <li>
+                                <a class="button_addproduct btn_animation" @click="openModal()">
+                                    <span>
+                                        add product
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="table py1">
                     <div class="table--heading2">
@@ -290,7 +304,11 @@ const onUpdate = async (id) => {
                     <div class="table--items2" v-for="(itemcart, i) in form.invoice_item" :key="itemcart.id" >
                         <p v-if="itemcart.product">{{ itemcart.product.id }} {{ itemcart.product.description }}</p>
                         <p v-else> {{ itemcart.id }} {{ itemcart.description }}</p>
-                        <p><input type="text" class="input" v-model="itemcart.unit_price"  /></p>
+                        <TextInput
+                            type="text"
+                            v-model="itemcart.unit_price"
+                        />
+                        <!-- <p><input type="text" class="input" v-model="itemcart.unit_price"  /></p> -->
                         <p><input type="text" class="input" v-model="itemcart.quantity"></p>
                         <p style="text-align: center; font-weight: bold;">$
                             {{ itemcart.unit_price * itemcart.quantity }}
@@ -301,37 +319,36 @@ const onUpdate = async (id) => {
                         </p>
                     </div>
                 </div>
-                <div class="invoice__total">
-                    <div>
-                        <div class="grand__total">
-                            <div class="grand__total--items">
-                                <p style="text-align: center;">Grand Total</p>
-                                <span style="text-align: center;">{{ Total() }}</span>
-                                <span style="text-align: center;"></span>
-                            </div>
-                        </div>
+                <div class="table__footer">
+                    <div class="document-footer">
+                        <p>Terms and Conditions</p>
+                        <textarea cols="50" rows="7" class="textarea" v-model="form.terms_and_conditions"></textarea>
                     </div>
-                    <div style="margin-right: 60px;">
-                        <div class="invoice__subtotal--item1">
-                            <p style="font-weight: 700;">Discount</p>
-                            <span><input style="text-align: center;" size="4" type="text" class="input"
-                                v-model="form.discount"></span>
-                            <span style="text-align: center; font-weight: 700;"> % </span>
+                    <div>
+                        <div class="table__footer--subtotal">
+                            <p>Sub Total</p>
+                            <span>{{ SubTotal() }}</span>
+                            <p class="text-center">$</p>
                         </div>
-                        <div class="invoice__subtotal--item1">
-                            <p style="font-weight: 700;">Sub Total</p>
-                            <span style="text-align: center; font-weight: 700;">{{ SubTotal() }}</span>
-                            <span style="text-align: center; font-weight: 700;">$</span>
+                        <div class="table__footer--discount">
+                            <p>Discount</p>
+                            <input type="text" class="input" v-model="form.discount">
+                            <p> % </p>
+                        </div>
+                        <div class="table__footer--total grand__total">
+                            <p>Total</p>
+                            <span> {{ Total() }}</span>
+                            <p> $ </p>
                         </div>
                     </div>
                 </div>
                 <div class="cart-footer-btn-action">
                     <div style="float: right;">
-                        <a class="button btn-primary" @click="onUpdate(form.id)">
-                            <span>Save</span>
+                        <a class="button_save btn_animation" @click="onUpdate(form.id)">
+                            <span>อัพเดท</span>
                         </a>
-                        <a class="button btn-danger" @click="onReset()">
-                            <span>Reset</span>
+                        <a class="button_back btn_animation" @click="onBack()">
+                            <span>ยกเลิก</span>
                         </a>
                     </div>
                 </div>
