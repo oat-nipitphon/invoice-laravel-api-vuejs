@@ -6,6 +6,7 @@ import New from '../Pages/New.vue'
 import Show from '../Pages/Show.vue'
 import Edit from '../Pages/Edit.vue'
 import CartItems from '../Pages/CartItems.vue'
+import TableDataReport from '../components/TableDataReport.vue'
 
 const routes = [
     {
@@ -43,6 +44,12 @@ const routes = [
     {
         path:'/sweetalert/test',
         component:SwalConfigCancel
+    },
+
+    {
+        path: '/TableDataReport',
+        name: 'TableDataReport',
+        component: TableDataReport
     },
 
 
