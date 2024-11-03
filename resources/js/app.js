@@ -1,15 +1,15 @@
 import './bootstrap';
 
 import { createApp } from 'vue'
-import App from './components/app.vue'
-import router from './router/index.js'
+import App from './Pages/App.vue'
+import router from './router/index'
 
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 // // import Bootstrap 5
-// import 'bootstrap/dist/css/bootstrap.css';
-// import 'bootstrap/dist/js/bootstrap.bundle';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/js/bootstrap.bundle';
 
 const app = createApp(App);
 

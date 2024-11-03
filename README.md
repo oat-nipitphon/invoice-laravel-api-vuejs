@@ -1,2 +1,5 @@
-# invoice-app
-- project create with laravel api and vuejs framework and install axios use in data base connect.
+# invoice-laravel-api-vue
+- project Invoice
+- run web application
+- laravel route api
+- vuejs view pages

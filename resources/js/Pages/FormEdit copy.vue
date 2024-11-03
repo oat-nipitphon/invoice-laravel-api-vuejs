@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import logoImage from '@/../assets/img/logo.png'
-import router from '../../router/index.js';
+import router from './resources/js/router/index.js';
 
 let form = ref([])
 let customers = ref([])

@@ -3,7 +3,7 @@ import logoImage from '@/../assets/img/logo.png'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
-import TextInput from '../TextInput.vue';
+import TextInput from '../components/TextInput.vue';
 // import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 
