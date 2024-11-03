@@ -56,6 +56,10 @@ const onDelete = async (id) => {
     });
 };
 
+function javaScript(){
+    console.log('Hello Java Script');
+}
+javaScript()
 
 
 
